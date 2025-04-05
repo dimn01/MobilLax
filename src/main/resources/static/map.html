@@ -1,10 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="style\map.css">
+    <script	src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>지도 검색 및 길찾기</title>
+    <script src="https://apis.openapi.sk.com/tmap/vectorjs?version=1&appKey=gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"></script>
+    <script src="module\init.js"></script>
+    <script type="text/javascript">
 
+    </script>
+</head>
+<body onload="initTmap()">
+<div class="sidebar">
+    <div id="header" class="Header">
+        <h3>장소 검색</h3>
+        <input type="text" id="searchInput" placeholder="장소를 입력하세요">
+        <button id ="bttn">검색</button> <!--onclick="searchLocation()"-->
+    </div>
+    <div id="info" class="info">
+        <div id="info_header" class="header">
+            <div id="info_header_main" class="main">
+                <div role="navigation">
+                    <!--<h2>검색 메뉴</h2>-->
+                    <ul class="menu">
+                        <li id="search_1" class="search_1-ACTIVE">
+                            <a href="#" class="mainmenuside" title="검색">검색</a>
+                        </li>
+                        <li id="search_2" class="carRoute-INACTIVE">
+                            <a href="#" class="mainmenuside" title="길찾기">길찾기기</a>
+                        </li>
+                        <li id="search_3" class="transitRoute-INACTIVE">
+                            <a href="#" class="mainmenuside" title="버스">버스</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="info_body" class="body">
+            <div id="info_main" class="info_main">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="map_container">
+    <div id="map_div"></div>
+    <button onClick="Move()">현위치로 이동</button>
+</div>
+<div id="contextMenu" class="context-menu", style="display: none; width: 6%">
+    <ul>
+        <button id="setStart">출발지</button>
+        <button id="setWaypoint">경유지</button>
+        <button id="setEnd">목적지</button>
+    </ul>
+</div>
 </body>
 </html>
