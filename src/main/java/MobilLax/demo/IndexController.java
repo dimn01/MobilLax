@@ -18,7 +18,7 @@ public class IndexController {
     if (!user.getPassword().equals(user.getConfirmPassword())) {
       return ResponseEntity.badRequest().body(new Response("Passwords do not match.", false));
     }
-
+    System.out.println(user);
     return ResponseEntity.ok(new Response("Registration successful!", true));
   }
 
@@ -40,6 +40,10 @@ public class IndexController {
 
     public String getConfirmPassword() { return confirmPassword; }
     public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
+
+    public String toString() {
+      return username + " " + email + " " + password;
+    }
   }
 
   static class Response {
