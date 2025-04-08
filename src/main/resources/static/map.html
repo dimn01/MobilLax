@@ -17,7 +17,8 @@
 <div class="sidebar">
     <div id="header" class="Header">
         <h3>장소 검색</h3>
-        <input type="text" id="searchKeyword" placeholder="장소를 입력하세요">
+        <input type="text" id="searchKeyword" placeholder="장소를 입력하세요" oninput="showSuggestions(this.value, 'where')">
+        <div class="suggest-box" id="fromSuggestions"></div>
         <button id="locationSearch" onclick="locationSearch()">검색</button>
         <h3>길찾기</h3>
         <input type="text" id="startlocation" placeholder="출발지를 입력하세요" style="width=5px">
@@ -31,7 +32,7 @@
         </div>
         <div id="info_body" class="body">
             <div id="info_main" class="info_main">
-                <ul id="searchResult" name ="searchResult">
+                <ul id="searchResult">
                     <li>검색결과</li>
                 </ul>
             </div>
@@ -41,13 +42,13 @@
 
 <div id="map_container">
     <div id="map_div"></div>
-    <button id="nowbtn" onClick="Move()">현위치</button>
+<!--    <button id="nowbtn" onClick="Move()">현위치</button>-->
 </div>
 <div id="contextMenu" class="context-menu", style="display: none; width: 6%">
     <ul>
-        <button id="setStart">출발지</button>
-        <button id="setWaypoint">경유지</button>
-        <button id="setEnd">목적지</button>
+        <button id="setStart" onclick="setStart()">출발지</button>
+        <button id="setWaypoint" onclick="setWaypoint()">경유지</button>
+        <button id="setEnd" onclick="setEnd()">목적지</button>
     </ul>
 </div>
 </body>

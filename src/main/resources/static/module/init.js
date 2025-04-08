@@ -53,7 +53,7 @@ function Move(){
     map.setCenter(now); // 지도의 중심 좌표를 설정합니다.
 }
 
-// 모든 마커 제거거
+// 모든 마커 제거
 function removeMarkers() {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
@@ -61,10 +61,16 @@ function removeMarkers() {
     markers = [];
 }
 
+// 현재 마커 제거
+function removeMarker() {
+    marker.setMap(null);
+    marker = null;
+}
+
 // 좌클릭
 function onClick(e) {
     hideContextMenu();
-    if(marker != null) { marker.setMap(null); marker = null;}
+    if (marker != null) { removeMarker(); }
 }
 
 // 우클릭
@@ -93,41 +99,39 @@ function markerClick(e) {
     alert('wow');
 }
 
-$(document).ready(function() {
-    $("#setStart").click(function() {
-        alert("출발지로 설정되었습니다.");
-        if (s_marker != null) {
-            s_marker.setMap(null);
-        }
-        s_marker = new Tmapv2.Marker({
-            position: new Tmapv2.LatLng(lat,lng),
-            icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_s.png`,
-            title: 'start',
-            map: map
-        });
-        console.log(s_marker['_marker_data']['vsmMarker']['_lngLat'][0]);
-        hideContextMenu();
+function setStart() {
+    removeMarker();
+    if (s_marker != null) {
+        s_marker.setMap(null);
+    }
+    s_marker = new Tmapv2.Marker({
+        position: new Tmapv2.LatLng(lat,lng),
+        icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png`,
+        title: 'start',
+        map: map
     });
+    hideContextMenu();
+    console.log(s_marker.getPosition());
+}
 
-    $("#setWaypoint").click(function() {
-        alert("경유지로 설정되었습니다.");
-        hideContextMenu();
-    });
+function setWaypoint() {
+    alert("경유지로 설정되었습니다.");
+    hideContextMenu();
+}
 
-    $("#setEnd").click(function() {
-        alert("목적지로 설정되었습니다.");
-        if (e_marker != null) {
-            e_marker.setMap(null);
-        }
-        e_marker = new Tmapv2.Marker({
-            position: new Tmapv2.LatLng(lat,lng),
-            icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png`,
-            title: 'end',
-            map: map
-        });
-        hideContextMenu();
+function setEnd() {
+    removeMarker();
+    if (e_marker != null) {
+        e_marker.setMap(null);
+    }
+    e_marker = new Tmapv2.Marker({
+        position: new Tmapv2.LatLng(lat,lng),
+        icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png`,
+        title: 'end',
+        map: map
     });
-})
+    hideContextMenu();
+}
 
 function hideContextMenu() {
     const contextMenu = document.getElementById("contextMenu");
