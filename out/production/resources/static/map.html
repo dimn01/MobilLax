@@ -9,6 +9,7 @@
     <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"></script>
     <script src="module/init.js"></script>
     <script src="module/LocationSearch.js"></script>
+    <script src="module/carRoute.js"></script>
     <script type="text/javascript">
 
     </script>
@@ -17,13 +18,13 @@
 <div class="sidebar">
     <div id="header" class="Header">
         <h3>장소 검색</h3>
-        <input type="text" id="searchKeyword" placeholder="장소를 입력하세요" oninput="showSuggestions(this.value, 'where')">
+        <input type="text" id="searchKeyword" placeholder="장소를 입력하세요">
         <div class="suggest-box" id="fromSuggestions"></div>
         <button id="locationSearch" onclick="locationSearch()">검색</button>
         <h3>길찾기</h3>
-        <input type="text" id="startlocation" placeholder="출발지를 입력하세요" style="width=5px">
-        <input type="text" id="endlocation" placeholder="목적지를 입력하세요" style="width=5px">
-        <button id="navigation">경로 탐색</button>
+        <input type="text" id="startlocation" placeholder="출발지를 입력하세요">
+        <input type="text" id="endlocation" placeholder="목적지를 입력하세요">
+        <button id="navigation" onclick="carRoute()">경로 탐색</button>
     </div>
     <div id="info" class="info">
         <div id="info_header" class="header">
@@ -42,13 +43,13 @@
 
 <div id="map_container">
     <div id="map_div"></div>
-<!--    <button id="nowbtn" onClick="Move()">현위치</button>-->
+    <!--    <button id="nowbtn" onClick="Move()">현위치</button>-->
 </div>
-<div id="contextMenu" class="context-menu", style="display: none; width: 6%">
+<div id="contextMenu" class="context-menu" style="display: none; width: 6%">
     <ul>
-        <button id="setStart" onclick="setStart()">출발지</button>
+        <button id="setStart" onclick="setStart(0, 0)">출발지</button>
         <button id="setWaypoint" onclick="setWaypoint()">경유지</button>
-        <button id="setEnd" onclick="setEnd()">목적지</button>
+        <button id="setEnd" onclick="setEnd(0, 0)">목적지</button>
     </ul>
 </div>
 </body>
