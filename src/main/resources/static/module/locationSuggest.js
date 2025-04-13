@@ -1,5 +1,9 @@
-document.write('<script scr="/init.js"></script>');
-
+const info = {
+    s_lat: "",
+    s_lon: "",
+    e_lat: "",
+    e_lon: "",
+}
 async function showSuggestions(value, type) {
   const suggestions = type === 'from' ? document.getElementById("fromSuggestions") : document.getElementById("toSuggestions");
 
@@ -15,7 +19,7 @@ async function showSuggestions(value, type) {
   const params = new URLSearchParams({
     "version": 2,
     "searchKeyword": value,
-    "resCoordType": "EPSG3857",
+    "resCoordType": "WGS84GEO",
     "reqCoordType": "WGS84GEO",
     "searchtypCd": "A",
 //    "centerLon": n_lng,
@@ -62,9 +66,9 @@ async function showSuggestions(value, type) {
 function selectSuggestion(place, type, lat, lon) {
   document.getElementById(type + "Input").value = place;
   document.getElementById(type + "Suggestions").innerHTML = '';
-
-  if (type == 'from') { setStart(lat, lon); }
-  if (type == 'to') { setEnd(lat, lon); }
+  console.log(lon, lat);
+  if (type == 'from') { info.s_lat = lat; info.s_lon = lon; }//arr1[0] = [lat, lon]; }//setStart(lat, lon); }
+  if (type == 'to') {  info.e_lat = lat; info.e_lon = lon; }//arr1[1] = [lat, lon]; }//setEnd(lat, lon); }
 }
 
 function swapInputs() {
@@ -83,4 +87,6 @@ function showRouteResults() {
       return;
     }
     document.getElementById("routeResults").style.display = "block";
+    console.log(info);
+    localStorage.setItem('info', JSON.stringify(info));
 }

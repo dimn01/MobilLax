@@ -1,7 +1,6 @@
 var map, lat, lng, now, marker;
 var n_lat, n_lng;
 var markers = [], arr = []; //시작 도착 마커 배열
-
 function initTmap() {
         map = new Tmapv2.Map("map_div", {
         center: new Tmapv2.LatLng(37.56520450, 126.98702028), // 지도 초기 좌표
@@ -9,7 +8,7 @@ function initTmap() {
         height: "100%",
         zoom: 16
     });
-
+    carRoute();
     // 현위치 마커
 //    if (navigator.geolocation) {
 //    navigator.geolocation.getCurrentPosition(
@@ -44,8 +43,8 @@ function initTmap() {
 //        });
 //    }
 
-    map.addListener("contextmenu", onContextmenu);
-    map.addListener("click", onClick);
+//    map.addListener("contextmenu", onContextmenu);
+//    map.addListener("click", onClick);
 }
 
 // 현위치 이동
@@ -104,6 +103,7 @@ function onContextmenu(e) {
     removeMarkers();
     lat = e.latLng.lat();
     lng = e.latLng.lng();
+
     marker = new Tmapv2.Marker({
         position: new Tmapv2.LatLng(lat,lng),
         icon: `https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_s_simple.png`,

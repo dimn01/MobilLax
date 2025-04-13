@@ -7,18 +7,20 @@ var resultMarkerArr = [];
 
 async function carRoute() {
     resettingMap();
-    const searchOption = $("#selectLevel").val();
+    const searchOption = 0; //$("#selectLevel").val();
     const trafficInfochk = "Y";
     const headers = {
         "Content-Type": "application/json",
         "appKey": "gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"
     };
 
+    const {s_lat, s_lon, e_lat, e_lon} = JSON.parse(localStorage.getItem('info'));
+    localStorage.removeItem('info');
     const params ={
-        "startX" : arr[0].getPosition()._lng,
-        "startY" : arr[0].getPosition()._lat,
-        "endX" :  arr[1].getPosition()._lng,
-        "endY" : arr[1].getPosition()._lat,
+        "startX" : Number(s_lon),
+        "startY" : Number(s_lat),
+        "endX" :  Number(e_lon),
+        "endY" :  Number(e_lat),
         "reqCoordType" : "WGS84GEO",
         "resCoordType" : "EPSG3857",
         "searchOption" : searchOption,
@@ -26,22 +28,22 @@ async function carRoute() {
         // "passList" : 경유지
     };
 
-    var marker_s = new Tmapv2.Marker({
-        position : new Tmapv2.LatLng(arr[0].getPosition()._lng,
-                arr[0].getPosition()._lat),
-        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png",
-        iconSize : new Tmapv2.Size(24, 38),
-        map : map
-    });
-
-    //도착
-    var marker_e = new Tmapv2.Marker({
-        position : new Tmapv2.LatLng(arr[1].getPosition()._lng,
-                arr[1].getPosition()._lat),
-        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png",
-        iconSize : new Tmapv2.Size(24, 38),
-        map : map
-    });
+//    var marker_s = new Tmapv2.Marker({
+//        position : new Tmapv2.LatLng(arr[0].getPosition()._lng,
+//                arr[0].getPosition()._lat),
+//        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png",
+//        iconSize : new Tmapv2.Size(24, 38),
+//        map : map
+//    });
+//
+//    //도착
+//    var marker_e = new Tmapv2.Marker({
+//        position : new Tmapv2.LatLng(arr[1].getPosition()._lng,
+//                arr[1].getPosition()._lat),
+//        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png",
+//        iconSize : new Tmapv2.Size(24, 38),
+//        map : map
+//    });
 
     try {
         const response = await fetch("https://apis.openapi.sk.com/tmap/routes?version=1&format=json&callback=result&appKey=gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D", {
