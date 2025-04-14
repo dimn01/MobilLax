@@ -1,4 +1,4 @@
-const info = {
+var info = {
     s_lat: "",
     s_lon: "",
     e_lat: "",
@@ -77,6 +77,14 @@ function swapInputs() {
   const temp = fromInput.value;
   fromInput.value = toInput.value;
   toInput.value = temp;
+  console.log(info);
+  var temp_s = [info.s_lat, info.s_lon];
+  info.s_lat = info.e_lat;
+  info.s_lon = info.e_lon;
+  info.e_lat = temp_s[0];
+  info.e_lon = temp_s[1];
+  console.log(info);
+  localStorage.setItem('info', JSON.stringify(info));
 }
 
 function showRouteResults() {

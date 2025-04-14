@@ -7,7 +7,11 @@ var resultMarkerArr = [];
 
 async function carRoute() {
     resettingMap();
-    const searchOption = 0; //$("#selectLevel").val();
+    let searchOption = 0; //$("#selectLevel").val();
+    const type = new URLSearchParams(window.location.search).get("type");
+    if(type == 'time') { searchOption = 2; }
+    else if(type == 'distance') { searchOption = 10; }
+    else if(type == 'transfer') { searchOption = 0; }
     const trafficInfochk = "Y";
     const headers = {
         "Content-Type": "application/json",
@@ -15,7 +19,7 @@ async function carRoute() {
     };
 
     const {s_lat, s_lon, e_lat, e_lon} = JSON.parse(localStorage.getItem('info'));
-    localStorage.removeItem('info');
+    // localStorage.removeItem('info');
     const params ={
         "startX" : Number(s_lon),
         "startY" : Number(s_lat),
@@ -29,8 +33,8 @@ async function carRoute() {
     };
 
 //    var marker_s = new Tmapv2.Marker({
-//        position : new Tmapv2.LatLng(arr[0].getPosition()._lng,
-//                arr[0].getPosition()._lat),
+//        position : new Tmapv2.LatLng(Number(s_lon),
+//                Number(s_lat)),
 //        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png",
 //        iconSize : new Tmapv2.Size(24, 38),
 //        map : map
@@ -38,8 +42,8 @@ async function carRoute() {
 //
 //    //도착
 //    var marker_e = new Tmapv2.Marker({
-//        position : new Tmapv2.LatLng(arr[1].getPosition()._lng,
-//                arr[1].getPosition()._lat),
+//        position : new Tmapv2.LatLng(Number(e_lon),
+//                Number(e_lat)),
 //        icon : "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png",
 //        iconSize : new Tmapv2.Size(24, 38),
 //        map : map
@@ -58,13 +62,27 @@ async function carRoute() {
         const carRouteData = data.features;
         console.log(carRouteData[0]);
 
-		const tDistance = "총 거리 : " + (carRouteData[0].properties.totalDistance / 1000).toFixed(1) + "km,";
-		const tTime = " 총 시간 : " + (carRouteData[0].properties.totalTime / 60).toFixed(0) + "분,";
-		const tFare = " 총 요금 : " + carRouteData[0].properties.totalFare + "원,";
-		const taxiFare = " 예상 택시 요금 : " + carRouteData[0].properties.taxiFare + "원";
+		const tDistance = (carRouteData[0].properties.totalDistance / 1000).toFixed(1) + "km";
+		var tTime = "";
+		if(Math.floor((carRouteData[0].properties.totalTime / 60) / 60)) {
+		    tTime = Math.floor((carRouteData[0].properties.totalTime / 60) / 60).toFixed(0) + "시 "
+                    		   + ((carRouteData[0].properties.totalTime / 60) % 60).toFixed(0) + "분";
+		}
+        else { tTime = (carRouteData[0].properties.totalTime / 60).toFixed(0) + "분"; }
+		const tFare = "총 요금 정보: " + carRouteData[0].properties.totalFare + "원";
+		const taxiFare = carRouteData[0].properties.taxiFare + "원"; // 택시 요금
 
+        document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
+        document.querySelector('.summary-item:nth-child(2) strong').textContent = taxiFare;
+        document.querySelector('.summary-item:nth-child(3) strong').textContent = "3";
         // 위 내용 삽입
         // document.getElementById("routeResult").textContent = tDistance + tTime + tFare + taxiFare;
+
+        const routeBounds = new Tmapv2.LatLngBounds();
+        var marker_s = new Tmapv2.LatLng(Number(s_lat), Number(s_lon));
+        var marker_e = new Tmapv2.LatLng(Number(e_lat), Number(e_lon));
+        routeBounds.extend(marker_s);
+        routeBounds.extend(marker_e);
 
         if (trafficInfochk == "Y") {
             for (var i in carRouteData) { //for문 [S]
@@ -88,40 +106,40 @@ async function carRoute() {
                     }
                     drawLine(sectionInfos, trafficArr);
                 }
-//                else {
-//                    var markerImg = "";
-//                    var pType = "";
-//
-//                    if (properties.pointType == "S") { //출발지 마커
-//                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png";
-//                        pType = "S";
-//
-//                    } else if (properties.pointType == "E") { //도착지 마커
-//                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png";
-//                        pType = "E";
-//                    }
-//                    else { //각 포인트 마커
-//                        markerImg = "http://topopen.tmap.co.kr/imgs/point.png";
-//                        pType = "P";
-//                        continue;
-//                    }
-//
-//                    // 경로들의 결과값들을 포인트 객체로 변환
-//                    var latlon = new Tmapv2.Point(
-//                            geometry.coordinates[0],
-//                            geometry.coordinates[1]);
-//                    // 포인트 객체를 받아 좌표값으로 다시 변환
-//                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlon);
-//
-//                    var routeInfoObj = {
-//                        markerImage : markerImg,
-//                        lng : convertPoint._lng,
-//                        lat : convertPoint._lat,
-//                        pointType : pType
-//                    };
-//                    // 마커 추가
-//                    setMarker(routeInfoObj);
-//                }
+                else {
+                    var markerImg = "";
+                    var pType = "";
+
+                    if (properties.pointType == "S") { //출발지 마커
+                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png";
+                        pType = "S";
+
+                    } else if (properties.pointType == "E") { //도착지 마커
+                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png";
+                        pType = "E";
+                    }
+                    else { //각 포인트 마커
+                        markerImg = "http://topopen.tmap.co.kr/imgs/point.png";
+                        pType = "P";
+                        continue;
+                    }
+
+                    // 경로들의 결과값들을 포인트 객체로 변환
+                    var latlon = new Tmapv2.Point(
+                            geometry.coordinates[0],
+                            geometry.coordinates[1]);
+                    // 포인트 객체를 받아 좌표값으로 다시 변환
+                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlon);
+
+                    var routeInfoObj = {
+                        markerImage : markerImg,
+                        lng : convertPoint._lng,
+                        lat : convertPoint._lat,
+                        pointType : pType
+                    };
+                    // 마커 추가
+                    setMarker(routeInfoObj);
+                }
             }//for문 [E]
         } else {
 
@@ -146,40 +164,41 @@ async function carRoute() {
                     }
                     drawLine(drawInfoArr, "0");
                 }
-//                else {
-//                    var markerImg = "";
-//                    var pType = "";
-//
-//                    if (properties.pointType == "S") { //출발지 마커
-//                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png";
-//                        pType = "S";
-//                    } else if (properties.pointType == "E") { //도착지 마커
-//                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png";
-//                        pType = "E";
-//                    } else { //각 포인트 마커
-//                        markerImg = "http://topopen.tmap.co.kr/imgs/point.png";
-//                        pType = "P";
-//                        continue;
-//                    }
-//
-//                    // 경로들의 결과값들을 포인트 객체로 변환
-//                    var latlon = new Tmapv2.Point(
-//                            geometry.coordinates[0],
-//                            geometry.coordinates[1]);
-//                    // 포인트 객체를 받아 좌표값으로 다시 변환
-//                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlon);
-//
-//                    var routeInfoObj = {
-//                        markerImage : markerImg,
-//                        lng : convertPoint._lng,
-//                        lat : convertPoint._lat,
-//                        pointType : pType
-//                    };
-//                    // Marker 추가
-//                    setMarker(routeInfoObj);
-//                }
+                else {
+                    var markerImg = "";
+                    var pType = "";
+
+                    if (properties.pointType == "S") { //출발지 마커
+                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_b_m_s.png";
+                        pType = "S";
+                    } else if (properties.pointType == "E") { //도착지 마커
+                        markerImg = "https://tmapapi.tmapmobility.com/upload/tmap/marker/pin_r_m_e.png";
+                        pType = "E";
+                    } else { //각 포인트 마커
+                        markerImg = "http://topopen.tmap.co.kr/imgs/point.png";
+                        pType = "P";
+                        continue;
+                    }
+
+                    // 경로들의 결과값들을 포인트 객체로 변환
+                    var latlon = new Tmapv2.Point(
+                            geometry.coordinates[0],
+                            geometry.coordinates[1]);
+                    // 포인트 객체를 받아 좌표값으로 다시 변환
+                    var convertPoint = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(latlon);
+
+                    var routeInfoObj = {
+                        markerImage : markerImg,
+                        lng : convertPoint._lng,
+                        lat : convertPoint._lat,
+                        pointType : pType
+                    };
+                    // Marker 추가
+                    setMarker(routeInfoObj);
+                }
             }//for문 [E]
         }
+    map.panToBounds(routeBounds);
 
     } catch (error) {
         console.error("car API 호출 중 오류 발생:", error);
