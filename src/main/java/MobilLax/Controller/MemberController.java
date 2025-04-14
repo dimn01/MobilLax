@@ -1,4 +1,4 @@
-package MobilLax.demo.Controller;
+package MobilLax.Controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
