@@ -31,6 +31,7 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.26'  // 버전을 명시해야 합니다
 	// MySQL JDBC Driver
 	implementation 'mysql:mysql-connector-java'
+	implementation 'io.github.cdimascio:dotenv-spring-boot:2.2.0'
 }
 
 tasks.named('test') {
