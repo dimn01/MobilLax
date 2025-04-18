@@ -32,9 +32,14 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                // 홈 페이지와 정적 파일에 대한 접근을 허용
+                                .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/images/**").permitAll()
+                                // 로그인, 회원가입 페이지 접근 허용
                                 .requestMatchers("/login", "/register").permitAll()
+                                // 관리자와 사용자 페이지 권한 설정
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/user/**").hasRole("USER")
+                                // 나머지 요청은 인증이 필요
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
@@ -47,6 +52,7 @@ public class SecurityConfig {
                                 .logoutUrl("/logout")
                                 .permitAll()
                 );
+
         return http.build();
     }
 }

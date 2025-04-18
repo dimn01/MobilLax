@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class MemberController {
 
     @Autowired
-    private UserRegistrationService userAccountService;
+    private UserRegistrationService userRegistrationService;
 
     // 로그인 페이지 요청 처리
     @GetMapping("/login")
@@ -21,21 +21,21 @@ public class MemberController {
     }
 
     // 회원가입 페이지 요청 처리
-    @GetMapping("/signup")
+    @GetMapping("/register")  // 변경된 경로
     public String showSignupForm() {
         return "member/register";  // 회원가입 페이지 경로 수정
     }
 
     // 회원가입 처리
-    @PostMapping("/signup")
-    public ModelAndView signup(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
-        boolean success = userAccountService.registerUser(name, email, password);
+    @PostMapping("/register")  // 변경된 경로
+    public ModelAndView register(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
+        boolean success = userRegistrationService.registerUser(name, email, password);
 
         ModelAndView mv = new ModelAndView();
         if (success) {
             mv.setViewName("redirect:/login");  // 회원가입 후 로그인 페이지로 리다이렉트
         } else {
-            mv.setViewName("redirect:/signup?error=email_exists");  // 이메일 중복 시 다시 회원가입 페이지로
+            mv.setViewName("redirect:/register?error=email_exists");  // 이메일 중복 시 다시 회원가입 페이지로
         }
 
         return mv;

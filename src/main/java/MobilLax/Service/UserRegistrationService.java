@@ -30,7 +30,7 @@ public class UserRegistrationService {
         UserAccount userAccount = new UserAccount();
         userAccount.setEmail(email);
         userAccount.setPassword(encodedPassword);
-        userAccount.setRole(role);
+        userAccount.setRole("ROLE_USER");
 
         userAccountRepository.save(userAccount); // DB에 저장
 
