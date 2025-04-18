@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,15 +13,24 @@
 <div class="form-wrapper">
   <div class="form-box">
     <h2>회원가입</h2>
-    <!-- 회원가입 폼 추가 -->
-    <form action="/register" method="POST"> <!-- POST 방식으로 /register 엔드포인트로 데이터 전송 -->
+
+    <!-- 오류 메시지 출력 -->
+    <div th:if="${error != null}">
+      <p style="color: red;" th:text="${error}"></p>
+    </div>
+
+    <!-- 회원가입 폼 -->
+    <form action="/register" method="POST">
+      <!-- CSRF 토큰 필드 추가 -->
+      <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+
       <input type="text" name="name" placeholder="이름" required class="form-input">
       <input type="email" name="email" placeholder="이메일" required class="form-input">
       <input type="password" name="password" placeholder="비밀번호" required class="form-input">
       <button type="submit" class="form-btn">회원가입</button>
     </form>
 
-    <div class="link">이미 계정이 있으신가요? <a href="/login">로그인</a></div> <!-- 로그인 페이지 경로 수정 -->
+    <div class="link">이미 계정이 있으신가요? <a href="/login">로그인</a></div>
   </div>
 </div>
 </body>
