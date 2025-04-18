@@ -17,7 +17,6 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
-    // 생성자를 통해 UserDetailsService 주입
     @Autowired
     public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -33,19 +32,19 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/login", "/register").permitAll()  // 로그인, 회원가입 페이지는 모두 접근 가능
-                                .requestMatchers("/admin/**").hasRole("ADMIN") // /admin/** 경로는 ADMIN 권한만 가능
-                                .requestMatchers("/user/**").hasRole("USER")  // /user/** 경로는 USER 권한만 가능
-                                .anyRequest().authenticated()  // 나머지 요청은 인증된 사용자만 접근 가능
+                                .requestMatchers("/login", "/register").permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/user/**").hasRole("USER")
+                                .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
                         formLogin
-                                .loginPage("/login") // 로그인 페이지 경로
+                                .loginPage("/login")
                                 .permitAll()
                 )
                 .logout(logout ->
                         logout
-                                .logoutUrl("/logout") // 로그아웃 경로
+                                .logoutUrl("/logout")
                                 .permitAll()
                 );
         return http.build();

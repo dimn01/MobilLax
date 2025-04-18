@@ -1,6 +1,6 @@
 package MobilLax.Controller;
 
-import MobilLax.Service.UserAccountService;
+import MobilLax.Service.UserRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,18 +12,18 @@ import org.springframework.web.servlet.ModelAndView;
 public class MemberController {
 
     @Autowired
-    private UserAccountService userAccountService;
+    private UserRegistrationService userAccountService;
 
     // 로그인 페이지 요청 처리
     @GetMapping("/login")
     public String showLoginForm() {
-        return "login";  // 로그인 페이지
+        return "member/login";  // 로그인 페이지 경로 수정
     }
 
     // 회원가입 페이지 요청 처리
     @GetMapping("/signup")
     public String showSignupForm() {
-        return "register";  // 회원가입 페이지
+        return "member/register";  // 회원가입 페이지 경로 수정
     }
 
     // 회원가입 처리
