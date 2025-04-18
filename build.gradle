@@ -18,20 +18,30 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-web-services'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	// Lombok 의존성 (컴파일 타임에만 필요)
+	implementation 'org.projectlombok:lombok:1.18.30'
+	compileOnly 'org.projectlombok:lombok:1.18.30' // 컴파일 타임에만 Lombok 필요
+	annotationProcessor 'org.projectlombok:lombok:1.18.30' // Lombok 애노테이션 프로세서
 
-	// Spring Boot Starter Data JPA
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// MySQL JDBC 드라이버 의존성 (버전 추가)
-	implementation 'mysql:mysql-connector-java:8.0.26'  // 버전을 명시해야 합니다
-	// MySQL JDBC Driver
-	implementation 'mysql:mysql-connector-java'
+	// Spring Boot 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // Thymeleaf 템플릿 엔진
+	implementation 'org.springframework.boot:spring-boot-starter-web' // 웹 기능
+	implementation 'org.springframework.boot:spring-boot-starter-web-services' // 웹 서비스 기능
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA 사용
+
+	// Spring Security 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security
+
+	// MySQL 의존성
+	implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL JDBC 드라이버
+
+	// Spring dotenv 의존성 (환경 변수 로딩)
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+	// 테스트 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 런처
+	developmentOnly 'org.springframework.boot:spring-boot-devtools' // 개발 중 디버깅/핫스왑 지원
 }
 
 tasks.named('test') {
@@ -41,4 +51,3 @@ tasks.named('test') {
 tasks.withType(JavaCompile) {
 	options.incremental = true
 }
-
