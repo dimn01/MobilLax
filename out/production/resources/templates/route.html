@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MobilLax - 상세 경로</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="css/route.css" type="text/css" rel="stylesheet"></link>
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get("type");
+      const titleMap = {
+        "time": "최단시간 상세경로",
+        "distance": "최단거리 상세경로",
+        "transfer": "최소환승 상세경로"
+      };
+      if (type && titleMap[type]) {
+        document.title = `MobilLax - ${titleMap[type]}`;
+        const heading = document.querySelector("h2");
+        if (heading) heading.textContent = titleMap[type];
+      }
+
+      kakao.maps.load(function () {
+        const container = document.getElementById('map');
+        if (!container) {
+          console.error('❌ map 요소를 찾을 수 없습니다!');
+          return;
+        }
+        const options = {
+          center: new kakao.maps.LatLng(37.5665, 126.9780),
+          level: 4
+        };
+        new kakao.maps.Map(container, options);
+      });
+    });
+  </script>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="back-home">
+        <a href="home.html" title="홈으로"><i class="fas fa-arrow-left"></i> 되돌아가기</a>
+      </div>
+      <h2>상세경로 안내</h2>
+      <div class="summary-box">
+        <div class="summary-item">
+          <i class="fas fa-clock"></i>
+          <span>총 시간</span>
+          <strong>5시간 8분</strong>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-won-sign"></i>
+          <span>예상 요금</span>
+          <strong>35,300원</strong>
+        </div>
+        <div class="summary-item">
+          <i class="fas fa-random"></i>
+          <span>환승</span>
+          <strong>4회</strong>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-content">
+      <div class="route-step"><i class="fas fa-map-marker-alt"></i>
+        <div class="step-content">
+          <h4>① 강원대학교춘천캠퍼스 출발</h4>
+          <p>도보 약 14분 (898m)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-bus"></i>
+        <div class="step-content">
+          <h4>② 7-1번 버스 탑승 - 춘천청소년수련관 정류장 승차</h4>
+          <p>강촌역 정류장 하차 (약 30분)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-train"></i>
+        <div class="step-content">
+          <h4>③ 경춘선 강촌역 승차 → 망우역 하차</h4>
+          <p>16개 역 이동 (약 1시간 7분)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-subway"></i>
+        <div class="step-content">
+          <h4>④ 경의중앙선 망우역 승차 → 회기역 하차</h4>
+          <p>3개 역 이동 (약 6분)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-subway"></i>
+        <div class="step-content">
+          <h4>⑤ 1호선 회기역 승차 → 서울역 하차</h4>
+          <p>10개 역 이동 (약 21분)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-train"></i>
+        <div class="step-content">
+          <h4>⑥ 서울역 → 부산역 (KTX)</h4>
+          <p>KTX 015 열차 탑승 (약 2시간 47분)</p>
+        </div>
+      </div>
+      <div class="step-arrow">↓</div>
+      <div class="route-step"><i class="fas fa-walking"></i>
+        <div class="step-content">
+          <h4>⑦ 부산역 도착</h4>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-cart">
+        <i class="fas fa-shopping-cart"></i> 장바구니 담기
+      </button>
+      <button class="btn-pay">
+        <i class="fas fa-credit-card"></i> 결제하기
+      </button>
+    </div>
+  </div>
+    <div class="map-area">
+      <div id="map"></div>
+    </div>    
+</body>
+</html>
