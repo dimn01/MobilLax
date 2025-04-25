@@ -1,11 +1,11 @@
-package MobilLax.demo;
+package MobilLax;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
+public class MobilLaxApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(MobilLaxApplication.class, args);
 	}
 }

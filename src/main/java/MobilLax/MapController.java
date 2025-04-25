@@ -1,4 +1,4 @@
-package MobilLax.demo;
+package MobilLax;
 
 public class MapController {
 

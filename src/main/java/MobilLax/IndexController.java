@@ -1,4 +1,4 @@
-package MobilLax.demo;
+package MobilLax;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
