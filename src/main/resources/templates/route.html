@@ -6,38 +6,9 @@
   <title>MobilLax - 상세 경로</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="css/route.css" type="text/css" rel="stylesheet"></link>
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const params = new URLSearchParams(window.location.search);
-      const type = params.get("type");
-      const titleMap = {
-        "time": "최단시간 상세경로",
-        "distance": "최단거리 상세경로",
-        "transfer": "최소환승 상세경로"
-      };
-      if (type && titleMap[type]) {
-        document.title = `MobilLax - ${titleMap[type]}`;
-        const heading = document.querySelector("h2");
-        if (heading) heading.textContent = titleMap[type];
-      }
-
-      kakao.maps.load(function () {
-        const container = document.getElementById('map');
-        if (!container) {
-          console.error('❌ map 요소를 찾을 수 없습니다!');
-          return;
-        }
-        const options = {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 4
-        };
-        new kakao.maps.Map(container, options);
-      });
-    });
-  </script>
+  <script type="text/javascript" src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"></script>
 </head>
-<body>
+<body  onload="initTmap()" oncontextmenu="return false;">
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="back-home">
