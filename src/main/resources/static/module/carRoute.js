@@ -70,7 +70,7 @@ async function carRoute() {
 		}
         else { tTime = (carRouteData[0].properties.totalTime / 60).toFixed(0) + "분"; }
 		const tFare = "총 요금 정보: " + carRouteData[0].properties.totalFare + "원";
-		const taxiFare = carRouteData[0].properties.taxiFare + "원"; // 택시 요금
+		const taxiFare = carRouteData[0].properties.taxiFare.toLocaleString() + "원"; // 택시 요금
 
         document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
         document.querySelector('.summary-item:nth-child(2) strong').textContent = taxiFare;
