@@ -1,9 +1,11 @@
 package MobilLax.Repository;
 
 import MobilLax.Model.UserAccount;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
+@Profile("prod")
 // JPA Repository, UserAccount(Entity) <= Repository(JPA) => MySQL
 public interface UserAccountRepository extends JpaRepository<UserAccount, String> {
     // 이메일로 사용자 찾기

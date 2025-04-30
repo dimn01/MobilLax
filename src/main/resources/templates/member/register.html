@@ -19,10 +19,17 @@
       <p style="color: red;" th:text="${error}"></p>
     </div>
 
+    <!-- 성공 메시지 출력 -->
+    <script th:if="${successMessage != null}" type="text/javascript">
+      alert([[${successMessage}]]);
+    </script>
+
     <!-- 회원가입 폼 -->
     <form action="/register" method="POST">
       <!-- CSRF 토큰 필드 추가 -->
-      <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+      <th:block th:if="${_csrf != null}">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+      </th:block>
 
       <input type="text" name="name" placeholder="이름" required class="form-input">
       <input type="email" name="email" placeholder="이메일" required class="form-input">

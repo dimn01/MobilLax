@@ -1,20 +1,18 @@
-package MobilLax.Service;
+package MobilLax.Security;
 
 import MobilLax.Model.UserAccount;
-import MobilLax.Repository.UserAccountRepository;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import MobilLax.Repository.UserAccountRepositoryInterface;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
-// UserDetails process Logic, Spring Security <= UserDetailsFetcherService => UserDetailsService
 @Service
+@Profile("prod")
 public class UserDetailsFetcherService implements UserDetailsService {
 
-    private final UserAccountRepository userAccountRepository;
+    private final UserAccountRepositoryInterface userAccountRepository;
 
-    public UserDetailsFetcherService(UserAccountRepository userAccountRepository) {
+    public UserDetailsFetcherService(UserAccountRepositoryInterface userAccountRepository) {
         this.userAccountRepository = userAccountRepository;
     }
 

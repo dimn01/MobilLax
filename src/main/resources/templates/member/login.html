@@ -19,10 +19,17 @@
       <p style="color: red;">[[${error}]]</p>  <!-- 로그인 실패 시 메시지 출력 -->
     </div>
 
+    <!-- 성공 메시지 출력 -->
+    <script th:if="${successMessage != null}" type="text/javascript">
+      alert([[${successMessage}]]);
+    </script>
+
     <!-- 로그인 폼 -->
     <form action="/login" method="POST">
       <!-- CSRF 토큰 필드 -->
-      <input type="hidden" name="_csrf" th:value="${_csrf.token}" /> <!-- CSRF 토큰을 Thymeleaf로 자동 전달 -->
+      <th:block th:if="${_csrf != null}">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+      </th:block>
 
       <!-- 이메일 입력 필드 -->
       <input type="email" name="email" placeholder="이메일" required class="form-input">
