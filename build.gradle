@@ -18,30 +18,50 @@ repositories {
 }
 
 dependencies {
-	// Lombok 의존성 (컴파일 타임에만 필요)
+	// ----------------------------------------
+	// ✅ Lombok (보일러플레이트 제거)
+	// ----------------------------------------
 	implementation 'org.projectlombok:lombok:1.18.30'
-	compileOnly 'org.projectlombok:lombok:1.18.30' // 컴파일 타임에만 Lombok 필요
-	annotationProcessor 'org.projectlombok:lombok:1.18.30' // Lombok 애노테이션 프로세서
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-	// Spring Boot 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // Thymeleaf 템플릿 엔진
-	implementation 'org.springframework.boot:spring-boot-starter-web' // 웹 기능
-	implementation 'org.springframework.boot:spring-boot-starter-web-services' // 웹 서비스 기능
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA 사용
+	// ----------------------------------------
+	// ✅ Spring Boot Starter (웹, JPA, Security, WebFlux 등)
+	// ----------------------------------------
+	implementation 'org.springframework.boot:spring-boot-starter-web'             // 일반 웹 기능
+	implementation 'org.springframework.boot:spring-boot-starter-web-services'    // SOAP/RESTful Web Services
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'        // JPA 기반 DB 연동
+	implementation 'org.springframework.boot:spring-boot-starter-security'        // 인증/인가 처리
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'       // Thymeleaf 템플릿 엔진
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'         // WebClient 등 비동기 웹 지원
 
-	// Spring Security 의존성
-	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security
-
-	// MySQL 의존성
+	// ----------------------------------------
+	// ✅ DB 드라이버
+	// ----------------------------------------
 	implementation 'com.mysql:mysql-connector-j:8.0.33' // MySQL JDBC 드라이버
 
-	// Spring dotenv 의존성 (환경 변수 로딩)
-	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+	// ----------------------------------------
+	// ✅ 환경변수(.env) 관리용 라이브러리
+	// ----------------------------------------
+	implementation 'me.paulschwarz:spring-dotenv:4.0.0' // .env 파일 로딩 지원
 
-	// 테스트 의존성
-	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 런처
-	developmentOnly 'org.springframework.boot:spring-boot-devtools' // 개발 중 디버깅/핫스왑 지원
+	// ----------------------------------------
+	// ✅ JSON & XML 처리
+	// ----------------------------------------
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
+	// ----------------------------------------
+	// ✅ Spring ConfigurationProperties 지원
+	// ----------------------------------------
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+	// ----------------------------------------
+	// ✅ 테스트 및 개발 지원
+	// ----------------------------------------
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'	// Spring Test
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'            // JUnit 런처
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'         // 개발용 핫스왑/자동 재시작
 }
 
 tasks.named('test') {
