@@ -10,7 +10,7 @@
 
 package MobilLax.Controller;
 
-import MobilLax.Service.TerminalService;
+import MobilLax.Service.SuburbBusService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,13 +25,13 @@ import reactor.core.publisher.Mono;
 @RestController
 public class TerminalController {
 
-    private final TerminalService terminalService;
+    private final SuburbBusService terminalService;
 
     /**
      * 생성자 주입
      * @param terminalService 터미널 정보 조회를 위한 서비스 클래스
      */
-    public TerminalController(TerminalService terminalService) {
+    public TerminalController(SuburbBusService terminalService) {
         this.terminalService = terminalService;
     }
 
