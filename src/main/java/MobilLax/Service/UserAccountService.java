@@ -1,21 +1,26 @@
 package MobilLax.Service;
 
 import MobilLax.Model.UserAccount;
-import MobilLax.Repository.UserAccountRepositoryInterface;
+import MobilLax.Repository.UserAccountRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class UserAccountService {
 
-    private final UserAccountRepositoryInterface userAccountRepository;
+    private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public UserAccountService(UserAccountRepositoryInterface userAccountRepository, PasswordEncoder passwordEncoder) {
+    public UserAccountService(UserAccountRepository userAccountRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.userAccountRepository = userAccountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @Transactional
@@ -39,12 +44,14 @@ public class UserAccountService {
         userAccountRepository.save(userAccount);
     }
 
-    public void authenticateUser(String email, String password) {
-        UserAccount userAccount = userAccountRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("아이디가 잘못되었습니다."));
-
-        if (!passwordEncoder.matches(password, userAccount.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 잘못되었습니다.");
+    public void login(String email, String password) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(email, password)
+            );
+            // 로그인 성공 후 로직 추가 가능
+        } catch (AuthenticationException e) {
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 잘못되었습니다.");
         }
     }
 }

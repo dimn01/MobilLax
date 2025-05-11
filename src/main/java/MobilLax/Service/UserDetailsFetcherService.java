@@ -1,18 +1,16 @@
-package MobilLax.Security;
+package MobilLax.Service;
 
 import MobilLax.Model.UserAccount;
-import MobilLax.Repository.UserAccountRepositoryInterface;
-import org.springframework.context.annotation.Profile;
+import MobilLax.Repository.UserAccountRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("prod")
 public class UserDetailsFetcherService implements UserDetailsService {
 
-    private final UserAccountRepositoryInterface userAccountRepository;
+    private final UserAccountRepository userAccountRepository;
 
-    public UserDetailsFetcherService(UserAccountRepositoryInterface userAccountRepository) {
+    public UserDetailsFetcherService(UserAccountRepository userAccountRepository) {
         this.userAccountRepository = userAccountRepository;
     }
 

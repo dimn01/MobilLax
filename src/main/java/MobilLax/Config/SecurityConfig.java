@@ -1,8 +1,8 @@
 package MobilLax.Config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,45 +18,51 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
 
+    @Value("${spring.profiles.active:}")
+    private String activeProfile;
+
     public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    // 비밀번호 인코더 설정
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // HTTP 보안 규칙 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())  // 필요 시 CSRF 비활성화 (개발환경에서)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/images/**").permitAll()
-                        .requestMatchers("/login", "/register").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("USER")
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .usernameParameter("email")  // 'email'로 로그인
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/")
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
-                );
+        http.csrf(csrf -> csrf.disable());
+
+        boolean isDevLike = "dev".equalsIgnoreCase(activeProfile) || "default".equalsIgnoreCase(activeProfile);
+
+        if (isDevLike) {
+            http.authorizeHttpRequests(authz -> authz.anyRequest().permitAll());
+        } else {
+            http.authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/images/**",
+                            "/login", "/register", "/api/**").permitAll()
+                    .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/user/**").hasRole("USER")
+                    .anyRequest().authenticated());
+        }
+
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/")
+                .permitAll());
+
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .permitAll());
 
         return http.build();
     }
 
-    // AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();

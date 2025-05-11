@@ -42,6 +42,16 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test' // 기본 테스트 지원
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // JUnit 런처
 	developmentOnly 'org.springframework.boot:spring-boot-devtools' // 개발 중 디버깅/핫스왑 지원
+
+	// JSON 처리 (공공데이터 대부분 JSON 응답 제공)
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	// Webflux 사용
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// Configuration Properties 사용할 경우
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	// XML 파싱 라이브러리
+	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
 }
 
 tasks.named('test') {
