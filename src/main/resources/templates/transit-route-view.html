@@ -1,0 +1,61 @@
+<!--
+  transit_route_view.html
+
+  ✅ 파일 목적: TransitController에서 전달된 대중교통 요약 및 상세 경로 데이터를 HTML로 시각화합니다.
+  ✅ 사용 위치: GET /api/transit/route/html
+  ✅ 주의 사항:
+    - 컨트롤러에서 summary, detail 객체를 Model에 포함시켜야 정상 렌더링됨
+    - Thymeleaf 렌더링 엔진이 필요하며, templates/transit_route_view.html 경로에 위치해야 함
+
+  작성자: 김영빈
+  마지막 수정일: 2025-05-12
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>대중교통 경로 결과</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .section { margin-bottom: 20px; }
+    .leg { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .walk { background-color: #f0f8ff; }
+    .subway { background-color: #e8f5e9; }
+    .header { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>🚍 대중교통 경로 요약</h1>
+<div class="section">
+  <p><strong>총 소요 시간:</strong> <span th:text="${summary.totalTime}"></span>초</p>
+  <p><strong>총 요금:</strong> <span th:text="${summary.totalFare}"></span>원</p>
+  <p><strong>환승 횟수:</strong> <span th:text="${summary.transferCount}"></span>회</p>
+  <p><strong>총 거리:</strong> <span th:text="${summary.totalDistance}"></span>m</p>
+  <p><strong>보행 거리:</strong>
+    <span th:text="${summary.totalWalkDistance}"></span>m /
+    <span th:text="${summary.totalWalkTime}"></span>초
+  </p>
+</div>
+
+<h2>🗺️ 상세 경로</h2>
+<div class="section">
+  <div th:each="leg : ${detail.legs}" th:classappend="'leg ' + (leg.mode.equals('WALK') ? 'walk' : 'subway')">
+    <div class="header" th:text="'[' + leg.mode + '] ' + (leg.route != null ? leg.route : '')"></div>
+    <p><strong>거리:</strong> <span th:text="${leg.distance}"></span>m</p>
+    <p><strong>시간:</strong> <span th:text="${leg.sectionTime}"></span>초</p>
+    <p><strong>출발:</strong> <span th:text="${leg.start.name}"></span></p>
+    <p><strong>도착:</strong> <span th:text="${leg.end.name}"></span></p>
+
+    <div th:if="${leg.steps != null and !#lists.isEmpty(leg.steps)}">
+      <p><strong>도보 상세:</strong></p>
+      <ul>
+        <li th:each="step : ${leg.steps}" th:text="step.description"></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

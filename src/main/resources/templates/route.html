@@ -1,12 +1,33 @@
+<!--
+  route.html
+
+  ✅ 파일 목적: 사용자에게 선택된 경로의 상세 교통 이동 단계를 시각적으로 보여주는 페이지입니다.
+  ✅ 주요 기능:
+    - URL 파라미터(`type`)에 따라 페이지 제목 및 내용을 동적으로 표시
+    - 카카오 지도 API를 이용해 위치 중심 맵 렌더링
+    - 예상 요금, 소요 시간, 환승 횟수 등 경로 요약 제공
+    - 각 이동 단계를 시각적으로 표현 (도보, 버스, 열차, 지하철 등)
+    - 장바구니/결제 버튼을 통한 사용자 상호작용 제공 (향후 서비스 확장용)
+
+  작성자: 김영빈
+  마지막 수정일: 2025-05-12
+-->
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MobilLax - 상세 경로</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link href="css/route.css" type="text/css" rel="stylesheet"></link>
+
+  <!-- ✅ 외부 스타일 및 아이콘 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="css/route.css" type="text/css" rel="stylesheet" />
+
+  <!-- ✅ 카카오 지도 SDK -->
   <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a"></script>
+
+  <!-- ✅ 초기 자바스크립트 로직 -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const params = new URLSearchParams(window.location.search);
@@ -22,6 +43,7 @@
         if (heading) heading.textContent = titleMap[type];
       }
 
+      // ✅ 카카오 지도 초기 렌더링
       kakao.maps.load(function () {
         const container = document.getElementById('map');
         if (!container) {
@@ -37,91 +59,120 @@
     });
   </script>
 </head>
+
 <body>
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="back-home">
-        <a href="home.html" title="홈으로"><i class="fas fa-arrow-left"></i> 되돌아가기</a>
-      </div>
-      <h2>상세경로 안내</h2>
-      <div class="summary-box">
-        <div class="summary-item">
-          <i class="fas fa-clock"></i>
-          <span>총 시간</span>
-          <strong>5시간 8분</strong>
-        </div>
-        <div class="summary-item">
-          <i class="fas fa-won-sign"></i>
-          <span>예상 요금</span>
-          <strong>35,300원</strong>
-        </div>
-        <div class="summary-item">
-          <i class="fas fa-random"></i>
-          <span>환승</span>
-          <strong>4회</strong>
-        </div>
-      </div>
+<!-- ✅ 왼쪽 사이드바: 경로 안내 -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="back-home">
+      <a href="home.html" title="홈으로"><i class="fas fa-arrow-left"></i> 되돌아가기</a>
     </div>
-    <div class="sidebar-content">
-      <div class="route-step"><i class="fas fa-map-marker-alt"></i>
-        <div class="step-content">
-          <h4>① 강원대학교춘천캠퍼스 출발</h4>
-          <p>도보 약 14분 (898m)</p>
-        </div>
+    <h2>상세경로 안내</h2>
+
+    <!-- ✅ 요약 정보 -->
+    <div class="summary-box">
+      <div class="summary-item">
+        <i class="fas fa-clock"></i>
+        <span>총 시간</span>
+        <strong>5시간 8분</strong>
       </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-bus"></i>
-        <div class="step-content">
-          <h4>② 7-1번 버스 탑승 - 춘천청소년수련관 정류장 승차</h4>
-          <p>강촌역 정류장 하차 (약 30분)</p>
-        </div>
+      <div class="summary-item">
+        <i class="fas fa-won-sign"></i>
+        <span>예상 요금</span>
+        <strong>35,300원</strong>
       </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-train"></i>
-        <div class="step-content">
-          <h4>③ 경춘선 강촌역 승차 → 망우역 하차</h4>
-          <p>16개 역 이동 (약 1시간 7분)</p>
-        </div>
+      <div class="summary-item">
+        <i class="fas fa-random"></i>
+        <span>환승</span>
+        <strong>4회</strong>
       </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-subway"></i>
-        <div class="step-content">
-          <h4>④ 경의중앙선 망우역 승차 → 회기역 하차</h4>
-          <p>3개 역 이동 (약 6분)</p>
-        </div>
-      </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-subway"></i>
-        <div class="step-content">
-          <h4>⑤ 1호선 회기역 승차 → 서울역 하차</h4>
-          <p>10개 역 이동 (약 21분)</p>
-        </div>
-      </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-train"></i>
-        <div class="step-content">
-          <h4>⑥ 서울역 → 부산역 (KTX)</h4>
-          <p>KTX 015 열차 탑승 (약 2시간 47분)</p>
-        </div>
-      </div>
-      <div class="step-arrow">↓</div>
-      <div class="route-step"><i class="fas fa-walking"></i>
-        <div class="step-content">
-          <h4>⑦ 부산역 도착</h4>
-        </div>
-      </div>
-    </div>
-    <div class="sidebar-footer">
-      <button class="btn-cart">
-        <i class="fas fa-shopping-cart"></i> 장바구니 담기
-      </button>
-      <button class="btn-pay">
-        <i class="fas fa-credit-card"></i> 결제하기
-      </button>
     </div>
   </div>
-    <div class="map-area">
-      <div id="map"></div>
-    </div>    
+
+  <!-- ✅ 이동 단계별 안내 -->
+  <div class="sidebar-content">
+    <div class="route-step">
+      <i class="fas fa-map-marker-alt"></i>
+      <div class="step-content">
+        <h4>① 강원대학교춘천캠퍼스 출발</h4>
+        <p>도보 약 14분 (898m)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-bus"></i>
+      <div class="step-content">
+        <h4>② 7-1번 버스 탑승 - 춘천청소년수련관 정류장 승차</h4>
+        <p>강촌역 정류장 하차 (약 30분)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-train"></i>
+      <div class="step-content">
+        <h4>③ 경춘선 강촌역 승차 → 망우역 하차</h4>
+        <p>16개 역 이동 (약 1시간 7분)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-subway"></i>
+      <div class="step-content">
+        <h4>④ 경의중앙선 망우역 승차 → 회기역 하차</h4>
+        <p>3개 역 이동 (약 6분)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-subway"></i>
+      <div class="step-content">
+        <h4>⑤ 1호선 회기역 승차 → 서울역 하차</h4>
+        <p>10개 역 이동 (약 21분)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-train"></i>
+      <div class="step-content">
+        <h4>⑥ 서울역 → 부산역 (KTX)</h4>
+        <p>KTX 015 열차 탑승 (약 2시간 47분)</p>
+      </div>
+    </div>
+
+    <div class="step-arrow">↓</div>
+
+    <div class="route-step">
+      <i class="fas fa-walking"></i>
+      <div class="step-content">
+        <h4>⑦ 부산역 도착</h4>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ 장바구니/결제 버튼 -->
+  <div class="sidebar-footer">
+    <button class="btn-cart">
+      <i class="fas fa-shopping-cart"></i> 장바구니 담기
+    </button>
+    <button class="btn-pay">
+      <i class="fas fa-credit-card"></i> 결제하기
+    </button>
+  </div>
+</div>
+
+<!-- ✅ 지도 영역 -->
+<div class="map-area">
+  <div id="map"></div>
+</div>
 </body>
 </html>

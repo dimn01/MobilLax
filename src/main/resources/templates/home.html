@@ -1,97 +1,134 @@
+<!--
+  home.html
+
+  ✅ 파일 목적: 사용자에게 출발지와 도착지를 입력받아 길찾기 기능을 제공하는 메인 홈 화면입니다.
+  ✅ 주요 기능:
+    - 출발/도착지 입력 및 추천 자동완성
+    - 모드 선택 (대중교통, 도보, 자동차 등)
+    - 추천 경로 목록 표시
+    - 외부 링크 제공 (지하철 노선도, 기차 승차권 예매 등)
+
+  작성자: 김영빈
+  마지막 수정일: 2025-05-12
+-->
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MobilLax</title>
+
+  <!-- ✅ 스타일시트 및 외부 리소스 -->
   <link href="css/style.css" type="text/css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">
-  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&libraries=services"></script>
-  <script src="javascript/jquery-1.12.3.js"></script>
-  <script src="javascript/script.js"></script> 
-</head>
-<body>
-  <header>
-    <h1>MobilLax</h1>
-    <div class="auth-buttons">
-      <a href="/login">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
-      </a>
-      <a href="/register">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
-      </a>
-    </div>
-  </header>
 
-  <main>
-    <section class="search-card">
-      <h2>빠른길찾기</h2>
-      <div class="search-box">
-        <div class="input-group">
-          <i class="fas fa-location-arrow"></i>
-          <input type="text" id="fromInput" placeholder="출발지 입력" oninput="showSuggestions(this.value, 'from')">
-          <button aria-label="검색">
-            <i class="fas fa-search"></i>
-          </button>
-          <div class="suggest-box" id="fromSuggestions"></div>
-        </div>
-        <button class="switch-button" onclick="swapInputs()">⇄</button>
-        <div class="input-group">
-          <i class="fas fa-map-marker-alt"></i>
-          <input type="text" id="toInput" placeholder="도착지 입력" oninput="showSuggestions(this.value, 'to')">
-          <button><i class="fas fa-search"></i></button>
-          <div class="suggest-box" id="toSuggestions"></div>
-        </div>
+  <!-- ✅ Kakao Map SDK (좌표 검색용) -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&libraries=services"></script>
+
+  <!-- ✅ 커스텀 스크립트 -->
+  <script src="javascript/jquery-1.12.3.js"></script>
+  <script src="javascript/script.js"></script>
+</head>
+
+<body>
+<!-- ✅ 상단 헤더 및 로그인/회원가입 링크 -->
+<header>
+  <h1>MobilLax</h1>
+  <div class="auth-buttons">
+    <a href="/login">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
+    </a>
+    <a href="/register">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
+    </a>
+  </div>
+</header>
+
+<!-- ✅ 메인 검색 카드 -->
+<main>
+  <section class="search-card">
+    <h2>빠른길찾기</h2>
+
+    <!-- ✅ 출발/도착지 입력 필드 -->
+    <div class="search-box">
+      <div class="input-group">
+        <i class="fas fa-location-arrow"></i>
+        <input type="text" id="fromInput" placeholder="출발지 입력" oninput="showSuggestions(this.value, 'from')">
+        <button aria-label="검색"><i class="fas fa-search"></i></button>
+        <div class="suggest-box" id="fromSuggestions"></div>
       </div>
-      <div class="search-action">
-        <button class="find-route-button" onclick="showRouteResults()">길찾기</button>
+
+      <!-- ✅ 입력 전환 버튼 -->
+      <button class="switch-button" onclick="swapInputs()">⇄</button>
+
+      <div class="input-group">
+        <i class="fas fa-map-marker-alt"></i>
+        <input type="text" id="toInput" placeholder="도착지 입력" oninput="showSuggestions(this.value, 'to')">
+        <button><i class="fas fa-search"></i></button>
+        <div class="suggest-box" id="toSuggestions"></div>
       </div>
-      <div class="mode-select">
-        <div class="mode-item"><i class="fas fa-subway"></i><span>대중교통</span></div>
-        <div class="mode-item"><i class="fas fa-car"></i><span>자동차</span></div>
-        <div class="mode-item"><i class="fas fa-walking"></i><span>도보</span></div>
-        <div class="mode-item"><i class="fas fa-bicycle"></i><span>자전거</span></div>
-      </div>
-      <div class="related-links">
-        관련 
-        <a href="https://search.naver.com/search.naver?sm=msv_nex&where=m&query=%EC%A7%80%ED%95%98%EC%B2%A0%EB%85%B8%EC%84%A0%EB%8F%84">지하철노선도</a>
-         · 
-        <a href="#">기차승차권예매</a>
-      </div>
-    </section>
-  </main>
-  <section class="route-results" id="routeResults">
-    <h2 style="text-align: center;">추천 경로</h2>
-    <div class="route-result-list">
-      <ul class="route-list">
-        <li>
-          <a href="route.html?type=time">
-            <span class="label">최단시간</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-        <li>
-          <a href="route.html?type=distance">
-            <span class="label">최단거리</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-        <li>
-          <a href="route.html?type=transfer">
-            <span class="label">최소환승</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-      </ul>
+    </div>
+
+    <!-- ✅ 길찾기 실행 버튼 -->
+    <div class="search-action">
+      <button class="find-route-button" onclick="showRouteResults()">길찾기</button>
+    </div>
+
+    <!-- ✅ 교통수단 선택 UI -->
+    <div class="mode-select">
+      <div class="mode-item"><i class="fas fa-subway"></i><span>대중교통</span></div>
+      <div class="mode-item"><i class="fas fa-car"></i><span>자동차</span></div>
+      <div class="mode-item"><i class="fas fa-walking"></i><span>도보</span></div>
+      <div class="mode-item"><i class="fas fa-bicycle"></i><span>자전거</span></div>
+    </div>
+
+    <!-- ✅ 외부 교통 정보 링크 -->
+    <div class="related-links">
+      관련
+      <a href="https://search.naver.com/search.naver?sm=msv_nex&where=m&query=%EC%A7%80%ED%95%98%EC%B2%A0%EB%85%B8%EC%84%A0%EB%8F%84" target="_blank">지하철노선도</a>
+      ·
+      <a href="#">기차승차권예매</a>
     </div>
   </section>
-  <footer>
-    <div>
-      © 2025 MobilLax. All rights reserved.
-    </div>
-  </footer>
+</main>
+
+<!-- ✅ 추천 경로 결과 영역 (클릭 시 상세 경로 페이지로 이동 가능) -->
+<section class="route-results" id="routeResults">
+  <h2 style="text-align: center;">추천 경로</h2>
+  <div class="route-result-list">
+    <ul class="route-list">
+      <li>
+        <a href="route.html?type=time">
+          <span class="label">최단시간</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+      <li>
+        <a href="route.html?type=distance">
+          <span class="label">최단거리</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+      <li>
+        <a href="route.html?type=transfer">
+          <span class="label">최소환승</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ✅ 하단 푸터 -->
+<footer>
+  <div>
+    © 2025 MobilLax. All rights reserved.
+  </div>
+</footer>
+
 </body>
 </html>

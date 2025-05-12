@@ -12,6 +12,7 @@ package MobilLax.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -23,15 +24,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
     /**
-     * ✅ WebClient Bean 등록
+     * ✅ WebClient Bean 등록 (버퍼 크기 확장 포함)
      *
-     * WebClient 인스턴스를 생성하여 Spring 컨테이너에 등록합니다.
-     * 외부 API 호출 시 서비스에서 `@Autowired` 또는 생성자 주입으로 사용 가능합니다.
+     * 외부 API에서 대용량 응답(JSON/XML 등)을 처리하기 위해
+     * 기본 256KB → 10MB로 메모리 버퍼 사이즈를 확장합니다.
      *
      * @return WebClient 인스턴스
      */
     @Bean
     public WebClient webClient() {
-        return WebClient.builder().build();
+        return WebClient.builder()
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer
+                                .defaultCodecs()
+                                .maxInMemorySize(10 * 1024 * 1024)) // 10MB로 확장
+                        .build())
+                .build();
     }
 }
