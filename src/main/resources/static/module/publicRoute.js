@@ -26,6 +26,20 @@ async function publicRoute() {
         const data = await response.json();
         console.log(data);
 
+        const text = JSON.stringify(data, null, 2);
+
+        // 텍스트 파일로 만들기
+        const blob = new Blob([text], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "data.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
     } catch (error) {
         console.error("car API 호출 중 오류 발생:", error);
     }
