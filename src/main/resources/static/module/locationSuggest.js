@@ -96,4 +96,5 @@ function showRouteResults() {
     document.getElementById("routeResults").style.display = "block";
     console.log(info);
     localStorage.setItem('info', JSON.stringify(info));
+    publicRoute();
 }

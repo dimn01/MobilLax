@@ -11,7 +11,6 @@ async function publicRoute() {
         "startY" : Number(s_lat),
         "endX" :  Number(e_lon),
         "endY" :  Number(e_lat),
-        "lang" : 0,
         "format": 'json',
         "count": 10,
         "searchDttm": '202505131000'
