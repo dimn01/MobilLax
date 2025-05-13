@@ -1,4 +1,4 @@
-var info = {
+ var info = {
     s_lat: "",
     s_lon: "",
     e_lat: "",
@@ -96,4 +96,5 @@ function showRouteResults() {
     document.getElementById("routeResults").style.display = "block";
     console.log(info);
     localStorage.setItem('info', JSON.stringify(info));
+    publicRoute();
 }
