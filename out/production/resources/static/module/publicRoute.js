@@ -13,7 +13,7 @@ async function publicRoute() {
         "endY" :  Number(e_lat),
         "lang" : 0,
         "format": 'json',
-        "count": 10,
+        "count": 3,
         "searchDttm": '202505131000'
     };
 
@@ -34,7 +34,7 @@ async function publicRoute() {
 
         const a = document.createElement("a");
         a.href = url;
-        a.download = "data.txt";
+        a.download = "mock.txt";
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

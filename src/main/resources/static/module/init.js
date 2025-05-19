@@ -8,7 +8,8 @@ function initTmap() {
         height: "100%",
         zoom: 16
     });
-    carRoute();
+    //carRoute();
+    publicTest();
     // 현위치 마커
 //    if (navigator.geolocation) {
 //    navigator.geolocation.getCurrentPosition(
