@@ -69,12 +69,12 @@ async function carRoute() {
                     		   + ((carRouteData[0].properties.totalTime / 60) % 60).toFixed(0) + "분";
 		}
         else { tTime = (carRouteData[0].properties.totalTime / 60).toFixed(0) + "분"; }
-		const tFare = "총 요금 정보: " + carRouteData[0].properties.totalFare.toLocaleString() + "원";
+		const tFare = "총 요금 정보: " + carRouteData[0].properties.totalFare + "원";
 		const taxiFare = carRouteData[0].properties.taxiFare.toLocaleString() + "원"; // 택시 요금
 
         document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
         document.querySelector('.summary-item:nth-child(2) strong').textContent = taxiFare;
-        document.querySelector('.summary-item:nth-child(3) strong').textContent = "3";
+        document.querySelector('.summary-item:nth-child(3) strong').textContent = "0";
         // 위 내용 삽입
         // document.getElementById("routeResult").textContent = tDistance + tTime + tFare + taxiFare;
 

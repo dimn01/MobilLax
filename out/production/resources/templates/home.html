@@ -4,96 +4,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MobilLax</title>
-<!--  안녕-->
   <link href="css/style.css" type="text/css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">  <script src="module/jquery-1.12.3.js"></script>
-  <script src="module/jquery-1.12.3.js"></script>
+  <script src="javascript/jquery-1.12.3.js"></script>
   <script src="module/locationSuggest.js"></script>
   <script src="module/init.js"></script>
   <script src="module/carRoute.js"></script>
+  <script src="module/publicRoute.js"></script>
 </head>
 <body>
-  <header>
-    <h1>MobilLax</h1>
-    <div class="auth-buttons">
-      <a href="member/login.html">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
-      </a>
-      <a href="member/signup.html">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
-      </a>
-    </div>
-  </header>
+<header>
+  <h1>MobilLax</h1>
+  <div class="auth-buttons">
+    <a href="login.html">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
+    </a>
+    <a href="signup.html">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
+    </a>
+  </div>
+</header>
 
-  <main>
-    <section class="search-card">
-      <h2>빠른길찾기</h2>
-      <div class="search-box">
-        <div class="input-group">
-          <i class="fas fa-location-arrow"></i>
-          <input type="text" id="fromInput" placeholder="출발지 입력" oninput="showSuggestions(this.value, 'from')">
-          <button aria-label="검색">
-            <i class="fas fa-search"></i>
-          </button>
-          <div class="suggest-box" id="fromSuggestions"></div>
-        </div>
-        <button class="switch-button" onclick="swapInputs()">⇄</button>
-        <div class="input-group">
-          <i class="fas fa-map-marker-alt"></i>
-          <input type="text" id="toInput" placeholder="도착지 입력" oninput="showSuggestions(this.value, 'to')">
-          <button><i class="fas fa-search"></i></button>
-          <div class="suggest-box" id="toSuggestions"></div>
-        </div>
+<main>
+  <section class="search-card">
+    <h2>빠른길찾기</h2>
+    <div class="search-box">
+      <div class="input-group">
+        <i class="fas fa-location-arrow"></i>
+        <input type="text" id="fromInput" placeholder="출발지 입력" oninput="showSuggestions(this.value, 'from')">
+        <button aria-label="검색">
+          <i class="fas fa-search"></i>
+        </button>
+        <div class="suggest-box" id="fromSuggestions"></div>
       </div>
-      <div class="search-action">
-        <button class="find-route-button" onclick="showRouteResults()">길찾기</button>
+      <button class="switch-button" onclick="swapInputs()">⇄</button>
+      <div class="input-group">
+        <i class="fas fa-map-marker-alt"></i>
+        <input type="text" id="toInput" placeholder="도착지 입력" oninput="showSuggestions(this.value, 'to')">
+        <button><i class="fas fa-search"></i></button>
+        <div class="suggest-box" id="toSuggestions"></div>
       </div>
-      <div class="mode-select">
-        <div class="mode-item"><i class="fas fa-subway"></i><span>대중교통</span></div>
-        <div class="mode-item"><i class="fas fa-car"></i><span>자동차</span></div>
-        <div class="mode-item"><i class="fas fa-walking"></i><span>도보</span></div>
-        <div class="mode-item"><i class="fas fa-bicycle"></i><span>자전거</span></div>
-      </div>
-      <div class="related-links">
-        관련 
-        <a href="https://search.naver.com/search.naver?sm=msv_nex&where=m&query=%EC%A7%80%ED%95%98%EC%B2%A0%EB%85%B8%EC%84%A0%EB%8F%84">지하철노선도</a>
-         · 
-        <a href="#">기차승차권예매</a>
-      </div>
-    </section>
-  </main>
-  <section class="route-results" id="routeResults">
-    <h2 style="text-align: center;">추천 경로</h2>
-    <div class="route-result-list">
-      <ul class="route-list">
-        <li>
-          <a href="templates/route.html?type=time">
-            <span class="label">최단시간</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-        <li>
-          <a href="route.html?type=distance">
-            <span class="label">최단거리</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-        <li>
-          <a href="route.html?type=transfer">
-            <span class="label">최소환승</span>
-            <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-            <span class="info">시간 / 금액 / 환승정보</span>
-          </a>
-        </li>
-      </ul>
+    </div>
+    <div class="search-action">
+      <button class="find-route-button" onclick="showRouteResults()">길찾기</button>
+    </div>
+    <div class="mode-select">
+      <div class="mode-item"><i class="fas fa-subway"></i><span>대중교통</span></div>
+      <div class="mode-item"><i class="fas fa-car"></i><span>자동차</span></div>
+      <div class="mode-item"><i class="fas fa-walking"></i><span>도보</span></div>
+      <div class="mode-item"><i class="fas fa-bicycle"></i><span>자전거</span></div>
+    </div>
+    <div class="related-links">
+      관련
+      <a href="https://search.naver.com/search.naver?sm=msv_nex&where=m&query=%EC%A7%80%ED%95%98%EC%B2%A0%EB%85%B8%EC%84%A0%EB%8F%84">지하철노선도</a>
+      ·
+      <a href="#">기차승차권예매</a>
     </div>
   </section>
-  <footer>
-    <div>
-      © 2025 MobilLax. All rights reserved.
-    </div>
-  </footer>
+</main>
+<section class="route-results" id="routeResults">
+  <h2 style="text-align: center;">추천 경로</h2>
+  <div class="route-result-list">
+    <ul class="route-list">
+      <li>
+        <a href="route.html?type=time">
+          <span class="label">최단시간</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+      <li>
+        <a href="route.html?type=distance">
+          <span class="label">최단거리</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+      <li>
+        <a href="route.html?type=transfer">
+          <span class="label">최소환승</span>
+          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
+          <span class="info">시간 / 금액 / 환승정보</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+<footer>
+  <div>
+    © 2025 MobilLax. All rights reserved.
+  </div>
+</footer>
 </body>
 </html>
