@@ -10,20 +10,25 @@ async function publicTest() {
         const text = await response.text();
         const data = JSON.parse(text);
 
+        const type = getQueryParam("type"); // "distance" 또는 "time"
+        console.log(type)
+        const index = getBestItineraryIndex(type || "time", data);
+        console.log(index);
+
         var tTime = "";
-        if(Math.floor((data.metaData.plan.itineraries[0].totalTime / 60) / 60)) {
-            tTime = Math.floor((data.metaData.plan.itineraries[0].totalTime / 60) / 60).toFixed(0) + "시 "
-                               + ((data.metaData.plan.itineraries[0].totalTime / 60) % 60).toFixed(0) + "분";
+        if(Math.floor((data.metaData.plan.itineraries[index].totalTime / 60) / 60)) {
+            tTime = Math.floor((data.metaData.plan.itineraries[index].totalTime / 60) / 60).toFixed(0) + "시 "
+                               + ((data.metaData.plan.itineraries[index].totalTime / 60) % 60).toFixed(0) + "분";
         }
-        else { tTime = (data.metaData.plan.itineraries[0].totalTime / 60).toFixed(0) + "분"; }
-        const tFare = data.metaData.plan.itineraries[0].fare.regular.totalFare.toLocaleString() + "원";
-        const tTrans = data.metaData.plan.itineraries[0].transferCount + "회";
+        else { tTime = (data.metaData.plan.itineraries[index].totalTime / 60).toFixed(0) + "분"; }
+        const tFare = data.metaData.plan.itineraries[index].fare.regular.totalFare.toLocaleString() + "원";
+        const tTrans = data.metaData.plan.itineraries[index].transferCount + "회";
 
         document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
         document.querySelector('.summary-item:nth-child(2) strong').textContent = tFare;
         document.querySelector('.summary-item:nth-child(3) strong').textContent = tTrans;
 
-        const legs = data.metaData.plan.itineraries[0].legs;
+        const legs = data.metaData.plan.itineraries[index].legs;
         const routeBounds = new Tmapv2.LatLngBounds();
 
         for (var leg of legs) {
@@ -76,4 +81,42 @@ function parseLineString(line) {
     const [lon, lat] = pair.split(",").map(Number);
     return new Tmapv2.LatLng(lat, lon);
   });
+}
+
+// 최소 거리, 최소 시간, 최소 환승 경로의 index 반환
+function getBestItineraryIndex(type, data) {
+  const itineraries = data.metaData.plan.itineraries;
+  var bestIndex = 0;
+
+  if (type === "distance") {
+    let minDistance = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.totalDistance < minDistance) {
+        minDistance = it.totalDistance;
+        bestIndex = i;
+      }
+    });
+  } else if (type === "time") {
+    let minTime = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.totalTime < minTime) {
+        minTime = it.totalTime;
+        bestIndex = i;
+      }
+    });
+  } else if (type === "transfer") {
+    let minTransfer = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.transferCount < minTransfer) {
+        minTransfer = it.transferCount;
+        bestIndex = i;
+      }
+    });
+  }
+  return bestIndex;
+}
+
+// URL 쿼리에서 type 추출 (예: distance, time)
+function getQueryParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
 }
