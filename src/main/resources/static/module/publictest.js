@@ -10,20 +10,41 @@ async function publicTest() {
         const text = await response.text();
         const data = JSON.parse(text);
 
+        var tTime = "";
+        if(Math.floor((data.metaData.plan.itineraries[0].totalTime / 60) / 60)) {
+            tTime = Math.floor((data.metaData.plan.itineraries[0].totalTime / 60) / 60).toFixed(0) + "시 "
+                               + ((data.metaData.plan.itineraries[0].totalTime / 60) % 60).toFixed(0) + "분";
+        }
+        else { tTime = (data.metaData.plan.itineraries[0].totalTime / 60).toFixed(0) + "분"; }
+        const tFare = data.metaData.plan.itineraries[0].fare.regular.totalFare.toLocaleString() + "원";
+        const tTrans = data.metaData.plan.itineraries[0].transferCount + "회";
+
+        document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
+        document.querySelector('.summary-item:nth-child(2) strong').textContent = tFare;
+        document.querySelector('.summary-item:nth-child(3) strong').textContent = tTrans;
+
         const legs = data.metaData.plan.itineraries[0].legs;
+        const routeBounds = new Tmapv2.LatLngBounds();
+
         for (var leg of legs) {
+            var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
+            var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+            routeBounds.extend(marker_s);
+            routeBounds.extend(marker_e);
+//            console.log(leg.start.lon, leg.start.lat);
+//            console.log(leg.end.lon, leg.end.lat);
             if (leg.mode === "WALK" && leg.steps) {
               for (var step of leg.steps) {
                 var points = parseLineString(step.linestring);
                 drawLine(points, "#888888"); // 도보 경로: 회색
               }
-            } else if (leg.mode === "BUS" && leg.passShape) {
+            } else if (leg.passShape && leg.passShape.linestring) {
               var color = `#${leg.routeColor || "0068B7"}`;
               var points = parseLineString(leg.passShape.linestring);
               drawLine(points, color); // 버스 경로
             }
          }
-
+        map.panToBounds(routeBounds);
         // 사용 예시
         console.log("불러온 목업 데이터:", data);
     } catch (err) {

@@ -10,6 +10,7 @@ function initTmap() {
     });
     //carRoute();
     publicTest();
+    //publicRoute();
     // 현위치 마커
 //    if (navigator.geolocation) {
 //    navigator.geolocation.getCurrentPosition(
