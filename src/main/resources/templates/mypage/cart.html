@@ -1,0 +1,83 @@
+<!-- templates/mypage/cart.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>장바구니 결제</title>
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+</head>
+<body>
+<h2>🛒 선택한 구간 결제</h2>
+
+<table>
+  <thead>
+  <tr><th>항목</th><th>요금</th><th>노선 ID</th></tr>
+  </thead>
+  <tbody>
+  <tr th:each="item : ${cart.items}">
+    <td th:text="${item.name}"></td>
+    <td th:text="${item.amount} + '원'"></td>
+    <td th:text="${item.routeId}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<p><strong>총 결제금액:</strong> <span th:text="${cart.totalAmount} + '원'"></span></p>
+<button onclick="requestPayment()">결제하기</button>
+
+<script th:inline="javascript">
+  const CUSTOMER_EMAIL = /*[[${email}]]*/ "guest@example.com";
+  const CUSTOMER_NAME = /*[[${user.name}]]*/ "홍길동"; // 필요시
+  const fareItems = /*[[${cart.items}]]*/ [];
+  const totalAmount = /*[[${cart.totalAmount}]]*/ 0;
+  const orderName = fareItems.map(f => f.name).join(", ");
+
+  async function requestPayment() {
+    const portone = window.PortOne;
+    const merchantUid = "order_" + new Date().getTime();
+
+    try {
+      const result = await portone.requestPayment({
+        storeId: "store-xxxxxx",
+        paymentId: merchantUid,
+        payment: {
+          amount: totalAmount,
+          orderName: orderName,
+          currency: "KRW"
+        },
+        payMethod: {
+          type: "CARD"
+        },
+        customer: {
+          customerId: CUSTOMER_EMAIL, // ✅ email이 ID로 사용됨
+          fullName: CUSTOMER_NAME,
+          phoneNumber: "01012345678",
+          email: CUSTOMER_EMAIL
+        }
+      });
+
+      if (result.status === "PAID") {
+        const confirmResponse = await fetch("/api/payment/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            impUid: result.paymentId,
+            merchantUid: merchantUid,
+            email: CUSTOMER_EMAIL, // ✅ 여기서도 email로
+            orderName: orderName,
+            fareItems: fareItems,
+            totalAmount: totalAmount
+          })
+        });
+        const message = await confirmResponse.text();
+        alert(message);
+      } else {
+        alert("❌ 결제가 실패했거나 중단되었습니다.");
+      }
+    } catch (e) {
+      alert("❌ 결제 중 오류 발생: " + e.message);
+    }
+  }
+</script>
+</body>
+</html>
