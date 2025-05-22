@@ -48,8 +48,8 @@ async function showSuggestions(value, type) {
         const name = poi.name;
         const addrName = poi.upperAddrName + " " + poi.middleAddrName
             + " " + poi.lowerAddrName;
-        const a_lat = poi.frontLat; //noorLat-중심점, frontLat-시설물 입구, pnsLat-보행자 입구
-        const a_lon = poi.frontLon;
+        const a_lat = poi.noorLat;
+        const a_lon = poi.noorLon;
 
         suggest += `<div onclick='selectSuggestion("${name}", "${type}", "${a_lat}", "${a_lon}")'>
             <i class='fas fa-map-marker-alt'></i>
@@ -96,5 +96,4 @@ function showRouteResults() {
     document.getElementById("routeResults").style.display = "block";
     console.log(info);
     localStorage.setItem('info', JSON.stringify(info));
-    //publicRoute();
 }
