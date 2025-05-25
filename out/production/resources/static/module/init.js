@@ -9,8 +9,8 @@ function initTmap() {
         zoom: 16
     });
     //carRoute();
-    publicTest();
-    //publicRoute();
+    //publicTest();
+    publicRoute();
     // 현위치 마커
 //    if (navigator.geolocation) {
 //    navigator.geolocation.getCurrentPosition(
