@@ -25,8 +25,8 @@ async function publicRoute() {
         });
         const data = await response.json();
         console.log(data);
+
         // mock data download
-//
 //        const text = JSON.stringify(data, null, 2);
 //
 //        // 텍스트 파일로 만들기
