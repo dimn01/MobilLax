@@ -74,7 +74,7 @@ async function carRoute() {
 
         document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
         document.querySelector('.summary-item:nth-child(2) strong').textContent = taxiFare;
-        document.querySelector('.summary-item:nth-child(3) strong').textContent = "3";
+        document.querySelector('.summary-item:nth-child(3) strong').textContent = "0";
         // 위 내용 삽입
         // document.getElementById("routeResult").textContent = tDistance + tTime + tFare + taxiFare;
 
