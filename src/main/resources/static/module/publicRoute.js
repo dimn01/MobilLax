@@ -13,7 +13,7 @@ async function publicRoute() {
         "endY" :  Number(e_lat),
         "lang" : 0,
         "format": 'json',
-        "count": 6,
+        "count": 10,
         "searchDttm": '202505221000'
     };
 
