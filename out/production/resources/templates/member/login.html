@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MobilLax - 로그인</title>
+  <link href="/css/login.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<header>
+  <h1><a href="/home">MobilLax</a></h1>
+</header>
+<div class="form-wrapper">
+  <div class="form-box">
+    <h2>로그인</h2>
+
+    <!-- 오류 메시지 출력 -->
+    <div th:if="${error != null}">
+      <p style="color: red;">[[${error}]]</p>  <!-- 로그인 실패 시 메시지 출력 -->
+    </div>
+
+    <!-- 성공 메시지 출력 -->
+    <script th:if="${successMessage != null}" type="text/javascript">
+      alert([[${successMessage}]]);
+    </script>
+
+    <!-- 로그인 폼 -->
+    <form action="/login" method="POST">
+      <!-- CSRF 토큰 필드 -->
+      <th:block th:if="${_csrf != null}">
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+      </th:block>
+
+      <!-- 이메일 입력 필드 -->
+      <input type="email" name="email" placeholder="이메일" required class="form-input">
+
+      <!-- 비밀번호 입력 필드 -->
+      <input type="password" name="password" placeholder="비밀번호" required class="form-input">
+
+      <!-- 로그인 버튼 -->
+      <button type="submit" class="form-btn">로그인</button>
+    </form>
+
+    <!-- 회원가입 페이지로 이동하는 링크 -->
+    <div class="link">계정이 없으신가요? <a href="/register">회원가입</a></div>
+  </div>
+</div>
+</body>
+</html>
