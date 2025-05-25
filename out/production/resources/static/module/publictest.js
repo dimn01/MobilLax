@@ -34,9 +34,11 @@ async function publicTest() {
             routeBounds.extend(marker_e);
 //            console.log(leg.start.lon, leg.start.lat);
 //            console.log(leg.end.lon, leg.end.lat);
+            // wark drawline or parseLineString or 아래 코드 수정해야 함
             if (leg.mode === "WALK" && leg.steps) {
               for (var step of leg.steps) {
                 var points = parseLineString(step.linestring);
+                console.log(points);
                 drawLine(points, "#888888"); // 도보 경로: 회색
               }
             } else if (leg.passShape && leg.passShape.linestring) {
@@ -120,7 +122,7 @@ function getQueryParam(key) {
 function timeCal(sec) {
     var tTime = ""
     if(Math.floor((sec / 60) / 60)) {
-        tTime = Math.floor((sec / 60) / 60).toFixed(0) + "시 "
+        tTime = Math.floor((sec / 60) / 60).toFixed(0) + "시간 "
                            + ((sec / 60) % 60).toFixed(0) + "분";
     }
     else { tTime = (sec / 60).toFixed(0) + "분"; }
@@ -139,9 +141,10 @@ function renderSidebarRoute(index, legs) {
 
     let iconClass = "fas fa-question"; // 기본 아이콘
     if (mode === "WALK") iconClass = "fas fa-walking";
-    else if (mode === "BUS") iconClass = "fas fa-bus";
-    else if (mode === "SUBWAY" || mode === "TRAIN") iconClass = "fas fa-subway";
-    // else if (mode === "RAIL") iconClass = "fas fa-train";
+    else if (mode === "BUS") iconClass = "fas fa-bus-simple";
+    else if (mode === "EXPRESSBUS") iconClass = "fas fa-bus"
+    else if (mode === "SUBWAY") iconClass = "fas fa-subway";
+    else if (mode === "TRAIN") iconClass = "fas fa-train";
 
     // 출발, 도착 정류장/역 이름
     const startName = leg.start.name || "";
@@ -152,14 +155,20 @@ function renderSidebarRoute(index, legs) {
 
     // 정류장 수 or 역 수
     let stepDesc = "";
-    if (mode === "BUS" && leg.passStopList?.stations?.length) {
-      const stationCount = leg.passStopList.stations.length;
-      stepDesc = `${timeMin}, 약 ${stationCount}개 정류장`;
-    } else if (mode === "SUBWAY" || mode === "RAIL") {
+    if (mode === "BUS") {
+      const stationCount = leg.passStopList.stationList.length ? leg.passStopList.stationList.length : "";
+      stepDesc = `${timeMin}, ${stationCount}개 정류장 이동`;
+    } else if (mode === "EXPRESSBUS" ) {
+       const cost = leg.routePayment ? leg.routePayment.toLocaleString() : ""
+       stepDesc = `${timeMin}, 요금 약 ${cost}원`;
+    } else if (mode === "SUBWAY") {
       const stationCount = leg.passStopList.stationList.length ? leg.passStopList.stationList.length : "";
       stepDesc = `${timeMin}, ${stationCount}개 역 이동`;
+    } else if (mode === "TRAIN") {
+       const cost = leg.routePayment ? leg.routePayment.toLocaleString() : ""
+       stepDesc = `${timeMin}, 요금 약 ${cost}원`;
     } else if (mode === "WALK") {
-      stepDesc = `${timeMin}, ${distance}`;
+      stepDesc = `${timeMin}, ${distance}이동`;
     }
 
     // HTML 조립
