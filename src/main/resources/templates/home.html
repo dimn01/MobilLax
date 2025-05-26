@@ -7,8 +7,9 @@
   <title>MobilLax</title>
 
   <link href="/css/style.css" type="text/css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&libraries=services"></script>
+  <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO"></script>
   <script src="/javascript/jquery-1.12.3.js"></script>
   <script src="/javascript/script.js"></script>
 </head>
@@ -22,8 +23,14 @@
       <a href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
     </div>
     <div th:unless="${#authorization.expression('isAuthenticated()')}">
-      <a href="/login"><i class="fas fa-sign-in-alt"></i> 로그인</a>
-      <a href="/register"><i class="fas fa-user-plus"></i> 회원가입</a>
+      <a href="/login">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login" style="vertical-align: middle; width: 20px; height: 20px;">
+        로그인
+      </a>
+      <a href="/register">
+        <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp" style="vertical-align: middle; width: 20px; height: 20px;">
+        회원가입
+      </a>
     </div>
   </div>
 </header>
