@@ -34,12 +34,12 @@ async function publicTest() {
             routeBounds.extend(marker_e);
 //            console.log(leg.start.lon, leg.start.lat);
 //            console.log(leg.end.lon, leg.end.lat);
-            // wark drawline or parseLineString or 아래 코드 수정해야 함
+            // wark drawline 수정해야 함 (경로가 끊기는 경우가 있음)
             if (leg.mode === "WALK") {
               if (leg.steps) {
                 for (var step of leg.steps) {
                   var points = parseLineString(step.linestring);
-                  //console.log(points);
+                  console.log(points);
                   drawLine(points, "#888888"); // 도보 경로: 회색
                 }
               } else {
@@ -62,7 +62,6 @@ async function publicTest() {
 
 // 라인 그리기
 function drawLine(latlngs, color) {
-    console.log(latlngs);
     var polyline = new Tmapv2.Polyline({
         path: latlngs,
         strokeColor: color,

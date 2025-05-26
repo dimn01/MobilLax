@@ -14,7 +14,7 @@ async function publicRoute() {
         "lang" : 0,
         "format": 'json',
         "count": 10,
-        "searchDttm": '202505221000'
+        //"searchDttm": '202505221000'
     };
 
     try {
@@ -79,20 +79,20 @@ async function publicRoute() {
         map.panToBounds(routeBounds);
 
     } catch (error) {
-        console.error("car API 호출 중 오류 발생:", error);
+        console.error("public API 호출 중 오류 발생:", error);
     }
 }
 
 // 라인 그리기
-//function drawLine(latlngs, color) {
-//  var polyline = new Tmapv2.Polyline({
-//    path: latlngs,
-//    strokeColor: color,
-//    strokeWeight: 6,
-//    map: map
-//  });
-//  resultdrawArr.push(polyline);
-//}
+function drawLine(latlngs, color) {
+  var polyline = new Tmapv2.Polyline({
+    path: latlngs,
+    strokeColor: color,
+    strokeWeight: 6,
+    map: map
+  });
+  resultdrawArr.push(polyline);
+}
 
 function clearRoutes() {
     if(resultdrawArr.length > 0) {
