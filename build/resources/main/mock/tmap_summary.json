@@ -1,0 +1,69 @@
+{
+  "metaData": {
+    "requestParameters": {
+      "endY": "35.115103",
+      "endX": "129.041467",
+      "startY": "37.864683",
+      "startX": "127.717519",
+      "reqDttm": "20250521000000"
+    },
+    "plan": {
+      "itineraries": [
+        {
+          "fare": {
+            "regular": {
+              "totalFare": 47200,
+              "currency": {
+                "symbol": "￦",
+                "currency": "원",
+                "currencyCode": "KRW"
+              }
+            }
+          },
+          "totalTime": 16447,
+          "totalWalkTime": 424,
+          "pathType": 4,
+          "transferCount": 1,
+          "totalDistance": 328069,
+          "totalWalkDistance": 482
+        },
+        {
+          "fare": {
+            "regular": {
+              "totalFare": 43700,
+              "currency": {
+                "symbol": "￦",
+                "currency": "원",
+                "currencyCode": "KRW"
+              }
+            }
+          },
+          "totalTime": 17898,
+          "totalWalkTime": 424,
+          "pathType": 4,
+          "transferCount": 2,
+          "totalDistance": 328075,
+          "totalWalkDistance": 482
+        },
+        {
+          "fare": {
+            "regular": {
+              "totalFare": 46100,
+              "currency": {
+                "symbol": "￦",
+                "currency": "원",
+                "currencyCode": "KRW"
+              }
+            }
+          },
+          "totalTime": 25256,
+          "totalWalkTime": 516,
+          "pathType": 5,
+          "transferCount": 2,
+          "totalDistance": 363084,
+          "totalWalkDistance": 412
+        }
+      ]
+    }
+  }
+}

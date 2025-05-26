@@ -48,23 +48,14 @@
         <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
       </th:block>
 
-      <!-- 이름 입력 -->
       <input type="text" name="name" placeholder="이름" required class="form-input">
-
-      <!-- 이메일 입력 -->
       <input type="email" name="email" placeholder="이메일" required class="form-input">
-
-      <!-- 비밀번호 입력 -->
       <input type="password" name="password" placeholder="비밀번호" required class="form-input">
-
-      <!-- 회원가입 버튼 -->
       <button type="submit" class="form-btn">회원가입</button>
     </form>
 
-    <!-- 로그인 페이지 이동 링크 -->
     <div class="link">이미 계정이 있으신가요? <a href="/login">로그인</a></div>
   </div>
 </div>
-
 </body>
 </html>
