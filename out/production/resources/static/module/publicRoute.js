@@ -84,15 +84,15 @@ async function publicRoute() {
 }
 
 // 라인 그리기
-function drawLine(latlngs, color) {
-  var polyline = new Tmapv2.Polyline({
-    path: latlngs,
-    strokeColor: color,
-    strokeWeight: 6,
-    map: map
-  });
-  resultdrawArr.push(polyline);
-}
+//function drawLine(latlngs, color) {
+//  var polyline = new Tmapv2.Polyline({
+//    path: latlngs,
+//    strokeColor: color,
+//    strokeWeight: 6,
+//    map: map
+//  });
+//  resultdrawArr.push(polyline);
+//}
 
 function clearRoutes() {
     if(resultdrawArr.length > 0) {

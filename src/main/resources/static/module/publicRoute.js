@@ -14,7 +14,7 @@ async function publicRoute() {
         "lang" : 0,
         "format": 'json',
         "count": 10,
-        "searchDttm": '202505221000'
+        //"searchDttm": '202505221000'
     };
 
     try {
