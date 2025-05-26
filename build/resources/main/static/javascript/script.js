@@ -315,7 +315,7 @@ async function getTmapRoute(fromX, fromY, toX, toY) {
   const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'appKey': 'tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO'
+    'appKey': '티맵앱키'
   };
 
   const body = {

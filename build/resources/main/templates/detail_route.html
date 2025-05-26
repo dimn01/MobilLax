@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>MobilLax - 상세 경로</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="/css/route.css" type="text/css" rel="stylesheet">
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a"></script>
+  <script src="/javascript/route_script.js"></script>
+  <script th:inline="javascript">
+    const CUSTOMER_ID = /*[[${customerId}]]*/ "guest";
+    const CUSTOMER_NAME = /*[[${customerName}]]*/ "이름없음";
+    const CUSTOMER_EMAIL = /*[[${customerEmail}]]*/ "noemail@example.com";
+  </script>
+</head>
+
+<body>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="back-home">
+      <a href="/home"><i class="fas fa-arrow-left"></i> 되돌아가기</a>
+    </div>
+    <h2 id="routeTitle">상세경로 안내</h2>
+    <div class="summary-box"></div>
+  </div>
+
+  <!-- ✅ 상세 경로 반복 내용 영역 -->
+  <div class="sidebar-content">
+    <div th:each="detail, detailStat : ${details}">
+      <h3>🔻 경로 [[${detailStat.index} + 1]]</h3>
+
+      <div th:each="leg : ${detail.legs}">
+        <h4>
+          [[${leg.role}]]
+          <span th:switch="${leg.mode}">
+            <span th:case="'WALK'">🚶</span>
+            <span th:case="'TRAIN'">🚆</span>
+            <span th:case="'EXPRESSBUS'">🚌</span>
+            <span th:case="'SUBWAY'">🚇</span>
+            <span th:case="'BUS'">🚌</span>
+            <span th:case="*">🔁</span>
+          </span>
+        </h4>
+
+        <ul>
+          <li>출발지: [[${leg.start.name}]]</li>
+          <li>도착지: [[${leg.end.name}]]</li>
+          <li>소요 시간: [[${leg.formattedTime}]]</li>
+          <li>거리: [[${leg.formattedDistance}]]</li>
+          <li th:if="${leg.route != null}">노선명: [[${leg.route}]]</li>
+          <li th:if="${leg.routeColor != null}">노선 색상: [[${leg.routeColor}]]</li>
+          <li th:if="${leg.routePayment != null}">
+            💸 구간 요금: [[${leg.routePayment}]]원
+            <button type="button"
+                    th:attr="onclick=|addToCart('${leg.route}', [[${leg.routePayment}]], '${detailStat.index}')|">
+              장바구니에 담기
+            </button>
+          </li>
+        </ul>
+
+        <div th:if="${!#lists.isEmpty(leg.steps)}">
+          <h5>📍 도보 안내</h5>
+          <ul>
+            <li th:each="step : ${leg.steps}" th:text="${step.description}"></li>
+          </ul>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(leg.stations)}">
+          <h5>🅿️ 경유 정류장</h5>
+          <ul>
+            <li th:each="station : ${leg.stations}">
+              [[${station.stationName}]] ([[${station.lon}]], [[${station.lat}]])
+            </li>
+          </ul>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(leg.lanes)}">
+          <h5>🚆 가능한 노선</h5>
+          <ul>
+            <li th:each="lane : ${leg.lanes}">
+              [[${lane.route}]] (ID: [[${lane.routeId}]])
+            </li>
+          </ul>
+        </div>
+        <hr>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ 장바구니 및 결제 버튼 (1번 코드 UI 유지) -->
+  <div class="sidebar-footer">
+    <button class="btn-cart" onclick="alert('🛒 장바구니 보기 기능은 준비 중입니다')">
+      <i class="fas fa-shopping-cart"></i> 장바구니 보기
+    </button>
+    <button class="btn-pay" onclick="requestPayment()">
+      <i class="fas fa-credit-card"></i> 선택한 구간 결제하기
+    </button>
+  </div>
+</div>
+
+<div class="map-area">
+  <div id="map"></div>
+</div>
+
+<!-- ✅ 장바구니 및 결제 처리 스크립트 -->
+<script>
+  let cart = [];
+
+  function addToCart(name, amount, routeId) {
+    const itemId = `${routeId}-${name}`;
+    if (cart.some(item => item.id === itemId)) {
+      alert("이미 장바구니에 담긴 구간입니다.");
+      return;
+    }
+    cart.push({
+      name: name,
+      amount: parseInt(amount),
+      routeId: `route${routeId}`,
+      id: itemId
+    });
+    alert(`🛒 ${name} 구간이 장바구니에 담겼습니다.`);
+  }
+
+  async function requestPayment() {
+    if (cart.length === 0) {
+      alert("장바구니가 비어 있습니다.");
+      return;
+    }
+
+    const totalAmount = cart.reduce((sum, item) => sum + item.amount, 0);
+    const portone = window.PortOne;
+    const merchantUid = "order_" + new Date().getTime();
+
+    try {
+      const result = await portone.requestPayment({
+        storeId: "store-xxxxxx",
+        paymentId: merchantUid,
+        payment: {
+          amount: totalAmount,
+          orderName: "대중교통 경로 요금",
+          currency: "KRW",
+        },
+        payMethod: {
+          type: "CARD",
+        },
+        customer: {
+          customerId: CUSTOMER_ID,
+          fullName: CUSTOMER_NAME,
+          phoneNumber: "01012345678",
+          email: CUSTOMER_EMAIL,
+        },
+      });
+
+      if (result.status === "PAID") {
+        const confirmResponse = await fetch("/api/payment/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            impUid: result.paymentId,
+            merchantUid: merchantUid,
+            userId: "user123",
+            fareItems: cart,
+            totalAmount: totalAmount
+          })
+        });
+
+        const message = await confirmResponse.text();
+        alert(message);
+        cart = [];
+      } else {
+        alert("❌ 결제 실패 또는 미완료 상태입니다.");
+      }
+    } catch (e) {
+      alert("❌ 결제 중 오류 발생: " + e.message);
+    }
+  }
+</script>
+
+</body>
+</html>
