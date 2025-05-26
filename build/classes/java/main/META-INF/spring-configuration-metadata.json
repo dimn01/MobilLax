@@ -1,6 +1,53 @@
 {
   "groups": [
     {
+      "name": "api",
+      "type": "MobilLax.Config.ApiProperties",
+      "sourceType": "MobilLax.Config.ApiProperties"
+    },
+    {
+      "name": "api.citybus",
+      "type": "MobilLax.Config.ApiProperties$CitybusApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getCitybus()"
+    },
+    {
+      "name": "api.express",
+      "type": "MobilLax.Config.ApiProperties$ExpressApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getExpress()"
+    },
+    {
+      "name": "api.route",
+      "type": "MobilLax.Config.ApiProperties$BusRouteApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getRoute()"
+    },
+    {
+      "name": "api.station",
+      "type": "MobilLax.Config.ApiProperties$StationApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getStation()"
+    },
+    {
+      "name": "api.suburb",
+      "type": "MobilLax.Config.ApiProperties$SuburbApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getSuburb()"
+    },
+    {
+      "name": "api.subway",
+      "type": "MobilLax.Config.ApiProperties$SubwayApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getSubway()"
+    },
+    {
+      "name": "api.train",
+      "type": "MobilLax.Config.ApiProperties$TrainApi",
+      "sourceType": "MobilLax.Config.ApiProperties",
+      "sourceMethod": "getTrain()"
+    },
+    {
       "name": "bus.api",
       "type": "MobilLax.Config.BusApiProperties",
       "sourceType": "MobilLax.Config.BusApiProperties"
@@ -13,6 +60,197 @@
     }
   ],
   "properties": [
+    {
+      "name": "api.citybus.arrival-all",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.arrival-specific",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.location",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.route-info",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.route-number",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.route-stops",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.station-nearby",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.station-no",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.station-route",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.citybus.sttn-location",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$CitybusApi"
+    },
+    {
+      "name": "api.express.arrival-info",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.express.arrival-tmn",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.express.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.express.grade",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.express.schedule",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.express.terminal",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$ExpressApi"
+    },
+    {
+      "name": "api.key",
+      "type": "java.lang.String",
+      "description": "공공데이터포털에서 발급받은 인증 키",
+      "sourceType": "MobilLax.Config.ApiProperties"
+    },
+    {
+      "name": "api.route.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$BusRouteApi"
+    },
+    {
+      "name": "api.route.info",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$BusRouteApi"
+    },
+    {
+      "name": "api.route.number",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$BusRouteApi"
+    },
+    {
+      "name": "api.route.stop",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$BusRouteApi"
+    },
+    {
+      "name": "api.station.by-no",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$StationApi"
+    },
+    {
+      "name": "api.station.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$StationApi"
+    },
+    {
+      "name": "api.station.nearby",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$StationApi"
+    },
+    {
+      "name": "api.station.through-routes",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$StationApi"
+    },
+    {
+      "name": "api.suburb.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SuburbApi"
+    },
+    {
+      "name": "api.suburb.grade",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SuburbApi"
+    },
+    {
+      "name": "api.suburb.schedule",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SuburbApi"
+    },
+    {
+      "name": "api.suburb.terminal",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SuburbApi"
+    },
+    {
+      "name": "api.subway.exit-bus",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SubwayApi"
+    },
+    {
+      "name": "api.subway.exit-facility",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SubwayApi"
+    },
+    {
+      "name": "api.subway.keyword",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SubwayApi"
+    },
+    {
+      "name": "api.subway.timetable",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$SubwayApi"
+    },
+    {
+      "name": "api.train.ctycode",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$TrainApi"
+    },
+    {
+      "name": "api.train.info",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$TrainApi"
+    },
+    {
+      "name": "api.train.station-list",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$TrainApi"
+    },
+    {
+      "name": "api.train.type",
+      "type": "java.lang.String",
+      "sourceType": "MobilLax.Config.ApiProperties$TrainApi"
+    },
     {
       "name": "bus.api.key",
       "type": "java.lang.String",
