@@ -79,7 +79,7 @@ async function publicRoute() {
         map.panToBounds(routeBounds);
 
     } catch (error) {
-        console.error("car API 호출 중 오류 발생:", error);
+        console.error("Tmap public API 호출 중 오류 발생:", error);
     }
 }
 
