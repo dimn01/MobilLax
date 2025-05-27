@@ -76,8 +76,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()); // CSRF 보호 비활성화 (API 서버이거나 필요 없는 경우)
 
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/images/**",
-                        "/login", "/register", "/api/**").permitAll()  // 인증 없이 접근 허용
+                .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/module/**",
+                        "/images/**", "/login", "/register", "/api/**").permitAll()  // 인증 없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")         // 관리자 권한 필요
                 .requestMatchers("/user/**").hasRole("USER")           // 사용자 권한 필요
                 .anyRequest().authenticated());                        // 그 외 모든 요청은 인증 필요
