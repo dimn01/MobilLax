@@ -8,11 +8,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadCart();
     }
   });
-
-  // 그룹 삭제 버튼 (이벤트 위임)
   document.querySelector(".cart-list")?.addEventListener("click", async (e) => {
+    const groupId = e.target.dataset.groupid;
+
+    // 🧹 삭제
     if (e.target.classList.contains("group-delete-button")) {
-      const groupId = e.target.dataset.groupid;
       if (confirm("이 경로 묶음을 삭제하시겠습니까?")) {
         try {
           await fetch(`/api/cart/group/${groupId}`, { method: "DELETE" });
@@ -20,6 +20,62 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (err) {
           alert("삭제 실패: " + err.message);
         }
+      }
+    }
+
+    // 💳 결제
+    if (e.target.classList.contains("group-pay-button")) {
+      try {
+        // 서버에서 여러 결제 정보 받아오기
+        const res = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
+        const payments = await res.json();
+
+        // 각 교통수단마다 순차적으로 결제 진행
+        for (const [transport, data] of Object.entries(payments)) {
+          const { storeId, channelKey, paymentId, orderName, amount } = data;
+
+          const response = await PortOne.requestPayment({
+            storeId,
+            channelKey,
+            paymentId,
+            orderName,
+            totalAmount: amount,
+            currency: "CURRENCY_KRW",
+            payMethod: "CARD"
+          });
+
+          if (response.code !== undefined) {
+            // 실패 기록
+            await fetch("/payment/fail", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                paymentId,
+                groupId,
+                amount,
+                transportType
+              })
+            });
+            alert(`${transport} 결제 실패: ` + response.message);
+            continue;
+          }
+
+          // 성공 기록
+          await fetch("/payment/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              paymentId,
+              groupId,
+              amount,
+              transportType
+            })
+          });
+
+          alert(`${transport} 결제 완료`);
+        }
+      } catch (err) {
+        alert("결제 중 오류 발생: " + err.message);
       }
     }
   });
@@ -61,7 +117,10 @@ async function loadCart() {
       groupEl.innerHTML = `
         <h3>
           🛍️ 경로 묶음
-          <button class="group-delete-button" data-groupid="${groupId}">삭제</button>
+          <div>
+            <button class="group-pay-button" data-groupid="${groupId}">결제하기</button>
+            <button class="group-delete-button" data-groupid="${groupId}">삭제</button>
+          </div>
         </h3>
       `;
 

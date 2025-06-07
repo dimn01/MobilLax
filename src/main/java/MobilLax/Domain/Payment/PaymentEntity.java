@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-
 @Entity
 @Table(name = "payments")
 @Data
@@ -21,5 +20,19 @@ public class PaymentEntity {
 
     private int amount;
 
-    private LocalDate date; // 결제일 (yyyy-MM-dd 형식)
+    private LocalDate date;
+
+    @Column(name = "transport_type", nullable = false)
+    private String transportType;
+
+    @Column(name = "group_id", nullable = false)
+    private String groupId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentStatus status;
+
+    public enum PaymentStatus {
+        PENDING, SUCCESS, FAIL
+    }
 }
