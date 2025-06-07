@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+
 @Entity
 @Table(name = "payments")
 @Data
@@ -21,6 +22,9 @@ public class PaymentEntity {
     private int amount;
 
     private LocalDate date;
+
+    @Column(name = "payment_id", nullable = false, unique = true)
+    private String paymentId; // 🔥 추가됨
 
     @Column(name = "transport_type", nullable = false)
     private String transportType;

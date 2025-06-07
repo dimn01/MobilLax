@@ -25,4 +25,7 @@ public class CartItemEntity {
     private String endName;
     @Column(nullable = false)
     private String totalFareGroupId;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
+
 }

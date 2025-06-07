@@ -8,8 +8,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadCart();
     }
   });
+
+  // 그룹별 결제 및 삭제 처리
   document.querySelector(".cart-list")?.addEventListener("click", async (e) => {
     const groupId = e.target.dataset.groupid;
+
+    if (!groupId) return;
 
     // 🧹 삭제
     if (e.target.classList.contains("group-delete-button")) {
@@ -25,63 +29,90 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 💳 결제
     if (e.target.classList.contains("group-pay-button")) {
-      try {
-        // 서버에서 여러 결제 정보 받아오기
-        const res = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
-        const payments = await res.json();
-
-        // 각 교통수단마다 순차적으로 결제 진행
-        for (const [transport, data] of Object.entries(payments)) {
-          const { storeId, channelKey, paymentId, orderName, amount } = data;
-
-          const response = await PortOne.requestPayment({
-            storeId,
-            channelKey,
-            paymentId,
-            orderName,
-            totalAmount: amount,
-            currency: "CURRENCY_KRW",
-            payMethod: "CARD"
-          });
-
-          if (response.code !== undefined) {
-            // 실패 기록
-            await fetch("/payment/fail", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                paymentId,
-                groupId,
-                amount,
-                transportType
-              })
-            });
-            alert(`${transport} 결제 실패: ` + response.message);
-            continue;
-          }
-
-          // 성공 기록
-          await fetch("/payment/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              paymentId,
-              groupId,
-              amount,
-              transportType
-            })
-          });
-
-          alert(`${transport} 결제 완료`);
-        }
-      } catch (err) {
-        alert("결제 중 오류 발생: " + err.message);
-      }
+      await processGroupPayment(groupId);
     }
   });
 });
 
-// 장바구니 불러오기
+// 공통 결제 처리 함수
+async function processGroupPayment(groupId) {
+  try {
+    const groupRes = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
+    const payments = await groupRes.json();
+
+    let failed = false;
+
+    for (const [transportType, data] of Object.entries(payments)) {
+      const { storeId, channelKey, paymentId, orderName, amount } = data;
+
+      const response = await PortOne.requestPayment({
+        storeId,
+        channelKey,
+        paymentId,
+        orderName,
+        totalAmount: amount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD"
+      });
+
+      if (response.code !== undefined) {
+        // 실패 처리
+        await fetch("/payment/fail", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId, groupId, amount, transportType })
+        });
+
+        alert(`${transportType} 결제 실패: ${response.message}`);
+        failed = true;
+        continue;
+      }
+
+      // 성공 처리
+      await fetch("/payment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId, groupId, amount, transportType })
+      });
+
+      alert(`${transportType} 결제 완료`);
+    }
+
+    await loadCart();
+
+    if (failed) {
+      alert("일부 결제가 실패했습니다. 마이페이지에서 확인해주세요.");
+    }
+
+  } catch (err) {
+    alert("결제 처리 중 오류: " + err.message);
+  }
+}
+
+// 전체 결제 버튼 처리
+async function goToPayment() {
+  try {
+    const res = await fetch("/api/cart/list");
+    if (!res.ok) throw new Error("장바구니 불러오기 실패");
+
+    const grouped = await res.json();
+    const groupIds = Object.keys(grouped);
+
+    if (groupIds.length === 0) {
+      alert("결제할 경로가 없습니다.");
+      return;
+    }
+
+    for (const groupId of groupIds) {
+      await processGroupPayment(groupId);
+    }
+
+  } catch (err) {
+    alert("전체 결제 중 오류 발생: " + err.message);
+  }
+}
+
+// 장바구니 목록 불러오기
 async function loadCart() {
   const container = document.querySelector(".cart-list");
   const actionButtons = document.querySelector(".cart-actions");
@@ -95,18 +126,17 @@ async function loadCart() {
     const groupIds = Object.keys(grouped);
 
     if (groupIds.length === 0) {
-      // 비어 있을 때
       container.innerHTML = `
         <div class="cart-empty">
           <img src="https://img.icons8.com/ios/100/empty-box.png" alt="empty">
           <p>장바구니가 비어 있습니다</p>
           <button class="find-route-button" onclick="location.href='/home'">경로 찾기</button>
         </div>`;
-      actionButtons.style.display = "none";  // 버튼 숨김
+      actionButtons.style.display = "none";
       return;
     }
 
-    actionButtons.style.display = "flex";  // 버튼 보임
+    actionButtons.style.display = "flex";
 
     groupIds.forEach(groupId => {
       const items = grouped[groupId];
@@ -143,14 +173,10 @@ async function loadCart() {
 
       container.appendChild(groupEl);
     });
+
   } catch (e) {
     console.error("장바구니 불러오기 실패", e);
     container.innerHTML = "<p>장바구니 정보를 불러올 수 없습니다.</p>";
     actionButtons.style.display = "none";
   }
-}
-
-// 결제 버튼
-function goToPayment() {
-  alert("결제 기능은 추후 구현 예정입니다.");
 }

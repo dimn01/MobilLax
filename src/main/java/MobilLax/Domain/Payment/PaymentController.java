@@ -67,10 +67,9 @@ public class PaymentController {
         return result;
     }
 
-
     // ✅ [2] 결제 완료 정보 저장
     @PostMapping("/complete")
-    public String completePayment(@RequestBody PaymentCompleteRequest req) {
+    public String completePayment(@RequestBody PaymentRequest req) {
         String email = getCurrentUserEmail();
 
         // 중복 결제 방지
@@ -89,41 +88,57 @@ public class PaymentController {
                 .build();
 
         paymentRepository.save(entity);
-        cartItemRepository.deleteByEmailAndTotalFareGroupId(email, req.getGroupId());
+        cartItemRepository.markAsDeletedByEmailAndGroupId(email, req.getGroupId());
 
         return "ok";
     }
 
-
-
     // ✅ [3] 결제 실패 정보 저장
     @PostMapping("/fail")
-    public String failPayment(@RequestBody PaymentCompleteRequest req) {
+    public String failPayment(@RequestBody PaymentRequest req) {
         String email = getCurrentUserEmail();
 
-        boolean alreadySuccess = paymentRepository.existsByGroupIdAndStatus(req.getGroupId(), PaymentEntity.PaymentStatus.SUCCESS);
-        if (alreadySuccess) {
-            return "이미 성공한 주문입니다.";
-        }
+        Optional<PaymentEntity> existing = paymentRepository.findByPaymentId(req.getPaymentId());
 
-        boolean alreadyFailed = paymentRepository.existsByGroupIdAndStatus(req.getGroupId(), PaymentEntity.PaymentStatus.FAIL);
-        if (alreadyFailed) {
-            return "이미 실패로 기록된 주문입니다.";
-        }
-
-        PaymentEntity entity = PaymentEntity.builder()
+        PaymentEntity entity = existing.orElseGet(() -> PaymentEntity.builder()
                 .email(email)
+                .paymentId(req.getPaymentId())
                 .amount(req.getAmount())
                 .date(LocalDate.now())
                 .groupId(req.getGroupId())
-                .transportType(req.getTransportType())  // 🔥 교통수단 저장
-                .status(PaymentEntity.PaymentStatus.FAIL)
-                .build();
+                .transportType(req.getTransportType())
+                .build());
 
+        entity.setStatus(PaymentEntity.PaymentStatus.FAIL);
         paymentRepository.save(entity);
-        return "fail_saved";
+
+        return "fail recorded";
     }
 
+    @PostMapping("/restore-cart")
+    public String restoreCart(@RequestBody RestoreCartRequest req) {
+        String email = getCurrentUserEmail();
+
+        // 현재 groupId + transportType 조합의 결제 성공 여부 확인
+        boolean isPaid = paymentRepository.existsByGroupIdAndTransportTypeAndStatus(
+                req.getGroupId(), req.getTransportType(), PaymentEntity.PaymentStatus.SUCCESS
+        );
+
+        if (isPaid) {
+            return "이미 결제된 항목입니다.";
+        }
+
+        // 기존에 삭제되었을 수도 있는 항목을 복원 로직으로 되돌림
+        cartItemRepository.restoreByEmailAndGroupIdAndTransport(email, req.getGroupId(), req.getTransportType());
+        return "복원 완료";
+    }
+
+    @Getter
+    @Setter
+    public static class RestoreCartRequest {
+        private String groupId;
+        private String transportType;
+    }
 
     // ✅ 인증된 사용자 이메일 조회 유틸
     private String getCurrentUserEmail() {
@@ -138,14 +153,5 @@ public class PaymentController {
         } else {
             return principal.toString();
         }
-    }
-
-    @Getter
-    @Setter
-    public static class PaymentCompleteRequest {
-        private String groupId;
-        private String paymentId;
-        private int amount;
-        private String transportType;  // 🔥 추가됨
     }
 }
