@@ -37,7 +37,7 @@ dependencies {
 	implementation 'org.springframework:spring-webflux'
 
 	// ✅ DB 드라이버
-	implementation 'com.mysql:mysql-connector-j:8.0.33'
+	implementation 'mysql:mysql-connector-java:8.0.33'
 
 	// ✅ .env
 	implementation 'me.paulschwarz:spring-dotenv:4.0.0'
@@ -65,4 +65,7 @@ tasks.named('test') {
 tasks.withType(JavaCompile) {
 	options.incremental = true
 	options.encoding = 'UTF-8'
+}
+springBoot {
+	mainClass = 'com.example.MobilLaxApplication'
 }

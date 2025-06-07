@@ -1,34 +1,14 @@
-<!--
-  templates/route.html
-
-  ✅ 파일 목적: 사용자에게 선택된 경로의 상세 교통 이동 단계를 시각적으로 보여주는 페이지입니다.
-  ✅ 주요 기능:
-    - URL 파라미터(`type`)에 따라 페이지 제목 및 내용을 동적으로 표시
-    - 카카오 지도 API를 이용해 위치 중심 맵 렌더링
-    - 예상 요금, 소요 시간, 환승 횟수 등 경로 요약 제공
-    - 각 이동 단계를 시각적으로 표현 (도보, 버스, 열차, 지하철 등)
-    - 장바구니/결제 버튼을 통한 사용자 상호작용 제공 (향후 서비스 확장용)
-
-  작성자: 김영빈
-  마지막 수정일: 2025-05-12
--->
-
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MobilLax - 상세 경로</title>
-
-  <!-- ✅ 외부 스타일 및 아이콘 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <link href="css/route.css" type="text/css" rel="stylesheet" />
-
-  <!-- ✅ 카카오 지도 SDK -->
-  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a"></script>
-  <script src="/javascript/route_script.js" ></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="/css/route.css" type="text/css" rel="stylesheet"></link>
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&autoload=false"></script>
+  <script src="/javascript/route_script.js"></script>
 </head>
-
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
@@ -37,7 +17,8 @@
       </div>
       <h2 id="routeTitle">상세경로 안내</h2>
       <div class="summary-box"></div>
-      <div class="sidebar-content"></div>
+    </div>
+    <div class="sidebar-content"></div>
     <div class="sidebar-footer">
       <button class="btn-cart">
         <i class="fas fa-shopping-cart"></i> 장바구니 담기
@@ -47,9 +28,24 @@
       </button>
     </div>
   </div>
-    <div class="map-area">
-      <div id="map"></div>
+  <div id="noRoutePopup" class="cart-popup hidden">
+    <h3>경로를 선택해주세요</h3>
+    <div class="popup-buttons">
+      <button class="btn-yes" onclick="closeNoRoutePopup()">확인</button>
     </div>
   </div>
-  </body>
+
+  <!-- 장바구니 담기 완료 -->
+  <div id="cartPopup" class="cart-popup hidden">
+    <h3>🛒 장바구니에 담겼습니다</h3>
+    <p>장바구니로 이동하시겠습니까?</p>
+    <div class="popup-buttons">
+      <button class="btn-yes" onclick="goToCart()">예</button>
+      <button class="btn-no" onclick="closeCartPopup()">아니오</button>
+    </div>
+  </div>
+  <div class="map-area">
+    <div id="map"></div>
+  </div>
+</body>
 </html>

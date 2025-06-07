@@ -63,12 +63,23 @@ function renderSummary(data) {
   const transfers = itinerary.transferCount;
 
   box.innerHTML = `
-    <p>총 소요 시간: ${Math.floor(timeMin / 60)}시간 ${timeMin % 60}분</p>
-    <p>총 거리: ${distKm}km</p>
-    <p>환승 횟수: ${transfers}회</p>
+    <div class="summary-item">
+      <i class="fas fa-clock"></i>
+      <span>총 소요 시간</span>
+      <strong>${Math.floor(timeMin / 60)}시간 ${timeMin % 60}분</strong>
+    </div>
+    <div class="summary-item">
+      <i class="fas fa-won-sign"></i>
+      <span>총 거리</span>
+      <strong>${distKm}km</strong>
+    </div>
+    <div class="summary-item">
+      <i class="fas fa-random"></i>
+      <span>환승 횟수</span>
+      <strong>${transfers}회</strong>
+    </div>
   `;
 }
-
 
 // 세부 경로 렌더링
 function renderSteps(itinerary) {
@@ -97,6 +108,19 @@ function renderSteps(itinerary) {
       </div>
     `;
 
+    //선택 이벤트 연결
+    stepEl.addEventListener("click", () => {
+      stepEl.classList.toggle("selected");
+
+      // (선택적) 선택된 모든 인덱스 저장
+      const allSteps = document.querySelectorAll(".route-step");
+      const selectedIndexes = [...allSteps].map((el, i) =>
+        el.classList.contains("selected") ? i : null
+      ).filter(i => i !== null);
+
+      localStorage.setItem("selectedRouteStepIndexes", JSON.stringify(selectedIndexes));
+    });
+
     container.appendChild(stepEl);
 
     if (idx < itinerary.legs.length - 1) {
@@ -118,4 +142,50 @@ function getIcon(mode) {
     TAXI: "car"
   };
   return icons[mode] || "map-marker-alt";
+}
+
+function showCartPopup() {
+  document.getElementById("cartPopup").classList.remove("hidden");
+}
+function closeCartPopup() {
+  document.getElementById("cartPopup").classList.add("hidden");
+}
+function goToCart() {
+  location.href = "/cart";
+}
+
+function showNoRoutePopup() {
+  document.getElementById("noRoutePopup").classList.remove("hidden");
+}
+function closeNoRoutePopup() {
+  document.getElementById("noRoutePopup").classList.add("hidden");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const cartBtn = document.querySelector(".btn-cart");
+  cartBtn?.addEventListener("click", handleAddToCart);
+});
+
+function handleAddToCart() {
+  const selectedSteps = [...document.querySelectorAll(".route-step.selected")];
+  if (selectedSteps.length === 0) {
+    showNoRoutePopup();
+    return;
+  }
+
+  const stepItems = selectedSteps.map((step) => {
+    const title = step.querySelector("h4")?.innerText.trim() || "경로 없음";
+    const desc = step.querySelector("p")?.innerText.trim() || "정보 없음";
+
+    return { title, desc };
+  });
+
+  const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
+  const updated = [...existing, ...stepItems];
+
+  localStorage.setItem("cartItems", JSON.stringify(updated));
+
+  console.table(JSON.parse(localStorage.getItem("cartItems"))); //경로확인용
+
+  showCartPopup();
 }

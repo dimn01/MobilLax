@@ -1,37 +1,36 @@
-<!-- templates/home.html -->
 <!DOCTYPE html>
-<html lang="ko">
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MobilLax</title>
-
-  <link href="/css/style.css" type="text/css" rel="stylesheet">
+  <link href="css/style.css" type="text/css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">
   <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&libraries=services"></script>
   <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO"></script>
   <script src="javascript/script.js"></script>
 </head>
-
 <body>
 <header>
   <h1>MobilLax</h1>
-  <div class="auth-buttons">
-    <div th:if="${#authorization.expression('isAuthenticated()')}">
-      <a href="/mypage/info"><i class="fas fa-user-circle"></i> 마이페이지</a>
-      <a href="/logout"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
-    </div>
-    <div th:unless="${#authorization.expression('isAuthenticated()')}">
-      <a href="/login">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">
-        로그인
-      </a>
-      <a href="/register">
-        <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">
-        회원가입
-      </a>
-    </div>
+  <!-- 로그인 안 했을 때 -->
+  <div class="auth-buttons" th:if="${remoteUser == null}">
+    <a href="/login">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
+    </a>
+    <a href="/register">
+      <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
+    </a>
+  </div>
+
+  <!-- 로그인 했을 때 -->
+  <div class="auth-buttons" th:if="${remoteUser != null}">
+    <a href="/mypage">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/user.png" alt="MyPage">마이페이지
+    </a>
+    <a href="/logout">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/logout-rounded.png" alt="Logout">로그아웃
+    </a>
   </div>
 </header>
 
