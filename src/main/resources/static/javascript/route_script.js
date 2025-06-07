@@ -51,7 +51,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 });
-
+document.addEventListener("DOMContentLoaded", () => {
+  const payBtn = document.querySelector(".btn-pay");
+  payBtn?.addEventListener("click", handleDirectPayment);
+});
 
 // 요약 정보 렌더링
 function renderSummary(data) {
@@ -200,5 +203,80 @@ async function handleAddToCart() {
 
   } catch (error) {
     alert("장바구니 담기 실패: " + error.message);
+  }
+}
+// 새로 추가된 바로 결제 함수
+async function handleDirectPayment() {
+  const selectedEls = [...document.querySelectorAll(".route-step.selected")];
+  if (selectedEls.length === 0) {
+    showNoRoutePopup();
+    return;
+  }
+
+  const selectedLegs = selectedEls
+    .map(el => el.legData)
+    .filter(leg =>
+      leg.routePayment > 0 &&
+      leg.start?.name &&
+      leg.end?.name
+    )
+    .map(leg => ({
+      mode: leg.mode,
+      route: leg.route,
+      routeId: leg.routeId,
+      routePayment: leg.routePayment,
+      startName: leg.start.name,
+      endName: leg.end.name
+    }));
+
+  if (selectedLegs.length === 0) {
+    alert("요금이 있는 경로만 결제할 수 있습니다.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/payment/direct-sdk-ready", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selectedLegs })
+    });
+
+    if (!res.ok) throw new Error("결제 준비 실패");
+
+    const payments = await res.json();
+
+    for (const [transportType, data] of Object.entries(payments)) {
+      const { storeId, channelKey, paymentId, orderName, amount, groupId } = data;
+
+      const response = await PortOne.requestPayment({
+        storeId,
+        channelKey,
+        paymentId,
+        orderName,
+        totalAmount: amount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD"
+      });
+
+      if (response.code !== undefined) {
+        alert(`${transportType} 결제가 실패했습니다: ${response.message}`);
+        continue;
+      }
+
+      await fetch("/payment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paymentId,
+          groupId,
+          amount,
+          transportType
+        })
+      });
+
+      alert(`${transportType} 결제가 완료되었습니다.`);
+    }
+  } catch (error) {
+    alert("결제 중 오류가 발생했습니다: " + error.message);
   }
 }

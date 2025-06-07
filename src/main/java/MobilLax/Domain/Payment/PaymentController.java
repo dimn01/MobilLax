@@ -2,10 +2,12 @@ package MobilLax.Domain.Payment;
 
 import MobilLax.Domain.Cart.CartItemEntity;
 import MobilLax.Domain.Cart.CartItemRepository;
+import MobilLax.Domain.Cart.CartItemRequestDTO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +31,7 @@ public class PaymentController {
     @Value("${portone_channel_card}")
     private String channelKey;
 
+    // 기존 장바구니 그룹 기반 결제 준비
     @PostMapping("/sdk-ready/{groupId}")
     public Map<String, Map<String, Object>> prepareSdkPayments(@PathVariable UUID groupId) {
         String email = getCurrentUserEmail();
@@ -36,7 +39,6 @@ public class PaymentController {
         List<CartItemEntity> items = cartItemRepository.findByEmailAndTotalFareGroupId(email, groupId.toString());
         if (items.isEmpty()) throw new IllegalArgumentException("결제할 항목이 없습니다.");
 
-        // ✅ 교통수단 종류별로 그룹화
         Map<String, List<CartItemEntity>> groupedByTransport = items.stream()
                 .collect(Collectors.groupingBy(CartItemEntity::getMode));
 
@@ -60,6 +62,7 @@ public class PaymentController {
             paymentInfo.put("orderName", orderName);
             paymentInfo.put("amount", totalAmount);
             paymentInfo.put("transportType", transport);
+            paymentInfo.put("groupId", groupId.toString());
 
             result.put(transport, paymentInfo);
         }
@@ -67,13 +70,59 @@ public class PaymentController {
         return result;
     }
 
-    // ✅ [2] 결제 완료 정보 저장
+    @PostMapping("/direct-sdk-ready")
+    public ResponseEntity<Map<String, Map<String, Object>>> prepareDirectSdkPayments(@RequestBody CartItemRequestDTO request) {
+        String email = getCurrentUserEmail();
+
+        List<CartItemRequestDTO.LegDTO> selectedLegs = request.getSelectedLegs();
+
+        if (selectedLegs == null || selectedLegs.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        // 선택된 구간들을 mode(교통수단)별로 그룹화
+        Map<String, List<CartItemRequestDTO.LegDTO>> groupedByTransport = selectedLegs.stream()
+                .collect(Collectors.groupingBy(CartItemRequestDTO.LegDTO::getMode));
+
+        Map<String, Map<String, Object>> result = new HashMap<>();
+
+        for (Map.Entry<String, List<CartItemRequestDTO.LegDTO>> entry : groupedByTransport.entrySet()) {
+            String transport = entry.getKey();
+            List<CartItemRequestDTO.LegDTO> legs = entry.getValue();
+
+            int totalAmount = legs.stream().mapToInt(CartItemRequestDTO.LegDTO::getRoutePayment).sum();
+
+            String orderName = legs.size() == 1 ?
+                    legs.get(0).getStartName() + " → " + legs.get(0).getEndName() :
+                    legs.get(0).getStartName() + " → " + legs.get(legs.size() - 1).getEndName()
+                            + " 외 " + (legs.size() - 1) + "건";
+
+            Map<String, Object> paymentInfo = new HashMap<>();
+            paymentInfo.put("storeId", storeId);  // @Value("${portone_store}")
+            paymentInfo.put("channelKey", channelKey);  // @Value("${portone_channel_card}")
+            paymentInfo.put("paymentId", "payment-" + UUID.randomUUID());
+            paymentInfo.put("orderName", orderName);
+            paymentInfo.put("amount", totalAmount);
+
+            // 임의 그룹ID 생성 (선택 구간들을 묶는 ID)
+            String groupId = UUID.randomUUID().toString();
+            paymentInfo.put("groupId", groupId);
+
+            paymentInfo.put("transportType", transport);
+
+            result.put(transport, paymentInfo);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 결제 완료 저장
     @PostMapping("/complete")
     public String completePayment(@RequestBody PaymentRequest req) {
         String email = getCurrentUserEmail();
 
-        // 중복 결제 방지
-        boolean alreadyPaid = paymentRepository.existsByGroupIdAndStatus(req.getGroupId(), PaymentEntity.PaymentStatus.SUCCESS);
+        boolean alreadyPaid = paymentRepository.existsByGroupIdAndTransportTypeAndStatus(
+                req.getGroupId(), req.getTransportType(), PaymentEntity.PaymentStatus.SUCCESS);
         if (alreadyPaid) {
             return "이미 결제된 주문입니다.";
         }
@@ -83,17 +132,17 @@ public class PaymentController {
                 .amount(req.getAmount())
                 .date(LocalDate.now())
                 .groupId(req.getGroupId())
-                .transportType(req.getTransportType()) // 🔥 교통수단 저장
+                .transportType(req.getTransportType())
                 .status(PaymentEntity.PaymentStatus.SUCCESS)
                 .build();
 
         paymentRepository.save(entity);
-        cartItemRepository.markAsDeletedByEmailAndGroupId(email, req.getGroupId());
+        cartItemRepository.markAsDeletedByEmailAndGroupId(email, req.getGroupId());  // isDeleted=true 처리
 
         return "ok";
     }
 
-    // ✅ [3] 결제 실패 정보 저장
+    // 결제 실패 저장
     @PostMapping("/fail")
     public String failPayment(@RequestBody PaymentRequest req) {
         String email = getCurrentUserEmail();
@@ -115,11 +164,11 @@ public class PaymentController {
         return "fail recorded";
     }
 
+    // 장바구니 복원 처리
     @PostMapping("/restore-cart")
     public String restoreCart(@RequestBody RestoreCartRequest req) {
         String email = getCurrentUserEmail();
 
-        // 현재 groupId + transportType 조합의 결제 성공 여부 확인
         boolean isPaid = paymentRepository.existsByGroupIdAndTransportTypeAndStatus(
                 req.getGroupId(), req.getTransportType(), PaymentEntity.PaymentStatus.SUCCESS
         );
@@ -128,7 +177,6 @@ public class PaymentController {
             return "이미 결제된 항목입니다.";
         }
 
-        // 기존에 삭제되었을 수도 있는 항목을 복원 로직으로 되돌림
         cartItemRepository.restoreByEmailAndGroupIdAndTransport(email, req.getGroupId(), req.getTransportType());
         return "복원 완료";
     }
@@ -140,7 +188,6 @@ public class PaymentController {
         private String transportType;
     }
 
-    // ✅ 인증된 사용자 이메일 조회 유틸
     private String getCurrentUserEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
