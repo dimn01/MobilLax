@@ -65,4 +65,29 @@ public class CartService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         cartItemRepository.deleteByEmailAndTotalFareGroupId(email, groupId);
     }
+    public String getRecentRouteSummary(String email) {
+        List<CartItemEntity> items = cartItemRepository.findByEmailOrderByIdDesc(email);
+        if (items.isEmpty()) return "없음";
+
+        String latestGroupId = items.getFirst().getTotalFareGroupId();
+        List<CartItemEntity> latestGroup = items.stream()
+                .filter(i -> latestGroupId.equals(i.getTotalFareGroupId()))
+                .sorted((a, b) -> a.getId().compareTo(b.getId())) // ID 기준 오름차순 정렬
+                .toList();
+
+        if (latestGroup.isEmpty()) return "없음";
+
+        String start = latestGroup.getFirst().getStartName();
+        String end = latestGroup.getLast().getEndName();
+        return start + " → " + end;
+    }
+
+    public int getCartGroupCount(String email) {
+        List<CartItemEntity> items = cartItemRepository.findByEmail(email);
+        return (int) items.stream()
+                .map(CartItemEntity::getTotalFareGroupId)
+                .distinct()
+                .count();
+    }
+
 }
