@@ -148,6 +148,15 @@ body {
   border-radius: 8px;
   box-shadow: 0 0 6px rgba(47, 128, 237, 0.3);
 }
+
+.route-step.selected::after {
+  content: '✔';
+  float: right;
+  color: #2f80ed;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
 .step-arrow {
   text-align: center;
   font-size: 1.5rem;

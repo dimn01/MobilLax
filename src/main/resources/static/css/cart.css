@@ -152,3 +152,62 @@ footer {
   color: #888;
   font-size: 0.9em;
 }
+.cart-group {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #fff;
+  position: relative;
+}
+
+.cart-group h3 {
+  font-size: 1.2em;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.total-fare {
+  text-align: right;
+  font-weight: bold;
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+.group-delete-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85em;
+}
+
+.group-delete-button:hover {
+  background-color: #c0392b;
+}
+
+.cart-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.find-route-button.danger {
+  background-color: #e74c3c;
+}
+
+.find-route-button.danger:hover {
+  background-color: #c0392b;
+}

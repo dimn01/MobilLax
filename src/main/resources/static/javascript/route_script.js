@@ -89,16 +89,16 @@ function renderSteps(itinerary) {
   itinerary.legs.forEach((leg, idx) => {
     const mode = leg.mode || "UNKNOWN";
     const iconClass = getIcon(mode);
-    const rawRoute = leg.route || "노선 정보 없음"; // 변수 이름 변경! ✅
-
+    const rawRoute = leg.route || "노선 정보 없음";
     const routeText = mode === "WALK" ? "" : ` (${rawRoute})`;
     const time = leg.sectionTime ? Math.round(leg.sectionTime / 60) : "정보 없음";
-
-    const start = leg.startName || leg.start?.name || "출발지 없음";
-    const end = leg.endName || leg.end?.name || "도착지 없음";
+    const start = leg.start?.name || "출발지 없음";
+    const end = leg.end?.name || "도착지 없음";
 
     const stepEl = document.createElement("div");
     stepEl.classList.add("route-step");
+    stepEl.dataset.index = idx;
+    stepEl.legData = leg; // ✅ leg 객체 저장
 
     stepEl.innerHTML = `
       <i class="fas fa-${iconClass}"></i>
@@ -108,17 +108,8 @@ function renderSteps(itinerary) {
       </div>
     `;
 
-    //선택 이벤트 연결
     stepEl.addEventListener("click", () => {
       stepEl.classList.toggle("selected");
-
-      // (선택적) 선택된 모든 인덱스 저장
-      const allSteps = document.querySelectorAll(".route-step");
-      const selectedIndexes = [...allSteps].map((el, i) =>
-        el.classList.contains("selected") ? i : null
-      ).filter(i => i !== null);
-
-      localStorage.setItem("selectedRouteStepIndexes", JSON.stringify(selectedIndexes));
     });
 
     container.appendChild(stepEl);
@@ -165,27 +156,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartBtn = document.querySelector(".btn-cart");
   cartBtn?.addEventListener("click", handleAddToCart);
 });
-
-function handleAddToCart() {
-  const selectedSteps = [...document.querySelectorAll(".route-step.selected")];
-  if (selectedSteps.length === 0) {
+async function handleAddToCart() {
+  const selectedEls = [...document.querySelectorAll(".route-step.selected")];
+  if (selectedEls.length === 0) {
     showNoRoutePopup();
     return;
   }
 
-  const stepItems = selectedSteps.map((step) => {
-    const title = step.querySelector("h4")?.innerText.trim() || "경로 없음";
-    const desc = step.querySelector("p")?.innerText.trim() || "정보 없음";
+  // ✅ routePayment > 0 이고 출발지/도착지가 있는 경우만 추출
+  const selectedLegs = selectedEls
+    .map(el => el.legData)
+    .filter(leg =>
+      leg.routePayment > 0 &&
+      leg.start?.name &&
+      leg.end?.name
+    )
+    .map(leg => ({
+      mode: leg.mode,
+      route: leg.route,
+      routeId: leg.routeId,
+      routePayment: leg.routePayment,
+      startName: leg.start.name,
+      endName: leg.end.name
+    }));
 
-    return { title, desc };
-  });
+  if (selectedLegs.length === 0) {
+    alert("요금이 있는 경로만 장바구니에 담을 수 있습니다.");
+    return;
+  }
 
-  const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
-  const updated = [...existing, ...stepItems];
+  try {
+    const res = await fetch("/api/cart/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selectedLegs })
+    });
 
-  localStorage.setItem("cartItems", JSON.stringify(updated));
+    if (!res.ok) throw new Error("서버 응답 실패");
 
-  console.table(JSON.parse(localStorage.getItem("cartItems"))); //경로확인용
+    const totalFare = await res.json();
+    console.log("🛒 총 결제 금액:", totalFare);
+    showCartPopup();
 
-  showCartPopup();
+  } catch (error) {
+    alert("장바구니 담기 실패: " + error.message);
+  }
 }

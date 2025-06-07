@@ -1,9 +1,10 @@
 package MobilLax.Model;
 
 import lombok.*;
-import java.util.List;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
-public class Plan {
-    private List<Itinerary> itineraries;
+public class StartEnd {
+    private String name;
+    private double lon;
+    private double lat;
 }
