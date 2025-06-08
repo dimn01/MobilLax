@@ -54,7 +54,7 @@ Thumbs.db
 # -----------------------------
 .env
 .env.*
-!*.env.example         # 예시용은 허용
+!*.env.example   # 예시 파일은 포함
 
 # ⚠️ 중요 설정은 커밋 허용
 !application.properties

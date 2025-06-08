@@ -121,10 +121,6 @@ function onContextmenu(e) {
     menu.style.display = "block";
 }
 
-function markerClick(e) {
-    alert('wow');
-}
-
 function setStart(s_lat, s_lng) {
     if (markers.length > 0) { removeMarker(); }
     if (arr[0]) { arr[0].setMap(null); arr[0] = null; }

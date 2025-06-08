@@ -1,27 +1,35 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MobilLax</title>
-<!--  안녕-->
   <link href="css/style.css" type="text/css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">  <script src="module/jquery-1.12.3.js"></script>
-  <script src="javascript/jquery-1.12.3.js"></script>
-  <script src="module/locationSuggest.js"></script>
-  <script src="module/init.js"></script>
-  <script src="module/carRoute.js"></script>
-  <script src="module/publicRoute.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" type="text/css" rel="stylesheet">
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=bbdb927adb59e986a99547b4bf19429a&libraries=services"></script>
+  <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO"></script>
+  <script src="javascript/script.js"></script>
 </head>
 <body>
 <header>
   <h1>MobilLax</h1>
-  <div class="auth-buttons">
-    <a href="login.html">
+  <!-- 로그인 안 했을 때 -->
+  <div class="auth-buttons" th:if="${remoteUser == null}">
+    <a href="/login">
       <img src="https://img.icons8.com/ios-filled/50/ffffff/login-rounded-right.png" alt="Login">로그인
     </a>
-    <a href="signup.html">
+    <a href="/register">
       <img src="https://img.icons8.com/ios-filled/50/ffffff/add-user-male.png" alt="SignUp">회원가입
+    </a>
+  </div>
+
+  <!-- 로그인 했을 때 -->
+  <div class="auth-buttons" th:if="${remoteUser != null}">
+    <a href="/mypage">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/user.png" alt="MyPage">마이페이지
+    </a>
+    <a href="/logout">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/logout-rounded.png" alt="Logout">로그아웃
     </a>
   </div>
 </header>
@@ -32,28 +40,37 @@
     <div class="search-box">
       <div class="input-group">
         <i class="fas fa-location-arrow"></i>
-        <input type="text" id="fromInput" placeholder="출발지 입력" oninput="showSuggestions(this.value, 'from')">
+        <input type="text" id="fromInput" placeholder="출발지 입력" onfocus="currentFocusType='from'; updateSuggestHeader(); showSuggestionBox();" oninput="showSuggestions(this.value)">
         <button aria-label="검색">
           <i class="fas fa-search"></i>
         </button>
-        <div class="suggest-box" id="fromSuggestions"></div>
       </div>
       <button class="switch-button" onclick="swapInputs()">⇄</button>
       <div class="input-group">
         <i class="fas fa-map-marker-alt"></i>
-        <input type="text" id="toInput" placeholder="도착지 입력" oninput="showSuggestions(this.value, 'to')">
+        <input type="text" id="toInput" placeholder="도착지 입력" onfocus="currentFocusType='to'; updateSuggestHeader(); showSuggestionBox();" oninput="showSuggestions(this.value)">
         <button><i class="fas fa-search"></i></button>
-        <div class="suggest-box" id="toSuggestions"></div>
       </div>
+    </div>
+    <div class="unified-suggest-box" id="suggestions">
+      <div class="suggest-header">출발지 검색</div>
     </div>
     <div class="search-action">
       <button class="find-route-button" onclick="showRouteResults()">길찾기</button>
     </div>
     <div class="mode-select">
-      <div class="mode-item"><i class="fas fa-subway"></i><span>대중교통</span></div>
-      <div class="mode-item"><i class="fas fa-car"></i><span>자동차</span></div>
-      <div class="mode-item"><i class="fas fa-walking"></i><span>도보</span></div>
-      <div class="mode-item"><i class="fas fa-bicycle"></i><span>자전거</span></div>
+      <div class="mode-item" data-mode="transit">
+        <i class="fas fa-subway"></i><span>대중교통</span>
+      </div>
+      <div class="mode-item" data-mode="reservation" onclick="alertComingSoon()">
+        <i class="fas fa-ticket-alt"></i><span>예매확인</span>
+      </div>
+      <div class="mode-item" data-mode="fare" onclick="alertComingSoon()">
+        <i class="fas fa-receipt"></i><span>요금비교</span>
+      </div>
+      <div class="mode-item" data-mode="local" onclick="alertComingSoon()">
+        <i class="fas fa-map-marker-alt"></i><span>주변정보</span>
+      </div>
     </div>
     <div class="related-links">
       관련
@@ -63,34 +80,12 @@
     </div>
   </section>
 </main>
-<section class="route-results" id="routeResults">
-  <h2 style="text-align: center;">추천 경로</h2>
-  <div class="route-result-list">
-    <ul class="route-list">
-      <li>
-        <a href="route.html?type=time">
-          <span class="label">최단시간</span>
-          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-          <span class="info">시간 / 금액 / 환승정보</span>
-        </a>
-      </li>
-      <li>
-        <a href="route.html?type=distance">
-          <span class="label">최단거리</span>
-          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-          <span class="info">시간 / 금액 / 환승정보</span>
-        </a>
-      </li>
-      <li>
-        <a href="route.html?type=transfer">
-          <span class="label">최소환승</span>
-          <span class="detail">예상 경로가 여기에 표시됩니다.</span>
-          <span class="info">시간 / 금액 / 환승정보</span>
-        </a>
-      </li>
-    </ul>
-  </div>
-</section>
+<form id="routeForm">
+  <fieldset>
+    <legend>추천 경로</legend>
+    <ul class="route-list" id="routeList"></ul>
+  </fieldset>
+</form>
 <footer>
   <div>
     © 2025 MobilLax. All rights reserved.
