@@ -15,18 +15,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.title = `MobilLax - ${titleMap[type]}`;
   }
 
-  // 지도 초기화 (카카오맵 사용 시)
-  if (window.kakao && window.kakao.maps) {
-    kakao.maps.load(() => {
-      const container = document.getElementById('map');
-      if (container) {
-        new kakao.maps.Map(container, {
-          center: new kakao.maps.LatLng(37.5665, 126.9780),
-          level: 4
-        });
-      }
-    });
-  }
+  // 지도 초기화
+  map = new Tmapv2.Map("map_div", {
+      center: new Tmapv2.LatLng(37.56520450, 126.98702028), // 지도 초기 좌표
+      width: "100%",
+      height: "100%",
+      zoom: 16
+  });
 
   // 경로 API 호출
   try {
