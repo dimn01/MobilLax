@@ -1,7 +1,6 @@
+let resultdrawArr = [];
 document.addEventListener("DOMContentLoaded", async function () {
-  const params = new URLSearchParams(window.location.search);
-  const type = params.get("type") || "shortestTime";  // 기본값 설정
-
+  const type = new URLSearchParams(window.location.search).get("type") || "shortestTime";
   const titleMap = {
     "shortestTime": "최단시간 상세경로",
     "shortestDistance": "최단거리 상세경로",
@@ -23,14 +22,59 @@ document.addEventListener("DOMContentLoaded", async function () {
       zoom: 16
   });
 
+  const headers = {
+      accept: 'application/json',
+      "Content-Type": "application/json",
+      "appKey": "gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"
+  };
+
+  console.log(JSON.parse(localStorage.getItem("selectedTo")))
+  const selectedFrom = JSON.parse(localStorage.getItem("selectedFrom")) || {};
+  const selectedTo = JSON.parse(localStorage.getItem("selectedTo"));
+  const params ={
+      "startX" : Number(selectedFrom.x),
+      "startY" : Number(selectedFrom.y),
+      "endX" :  Number(selectedTo.x),
+      "endY" :  Number(selectedTo.y),
+      "lang" : 0,
+      "format": 'json',
+      "count": 10,
+      "searchDttm": '202505221000'
+  };
+
   // 경로 API 호출
   try {
-    const res = await fetch(`/api/route/detail?type=${type}`);
-    if (!res.ok) throw new Error("API 호출 실패");
+      const response = await fetch("https://apis.openapi.sk.com/transit/routes/", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(params)
+      });
+      const data = await response.json();
+      console.log(data);
+      const index = getBestItineraryIndex(type || "shortestTime", data);
 
-    const data = await res.json();
-    renderSummary(data);
-    renderSteps(data.metaData.plan.itineraries[0]);  // 첫 번째 경로만 사용
+      const legs = data.metaData.plan.itineraries[index].legs;
+      const routeBounds = new Tmapv2.LatLngBounds();
+
+      for (var leg of legs) {
+          var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
+          var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+          routeBounds.extend(marker_s);
+          routeBounds.extend(marker_e);
+//            console.log(leg.start.lon, leg.start.lat);
+//            console.log(leg.end.lon, leg.end.lat);
+          if (leg.mode === "WALK" && leg.steps) {
+            for (var step of leg.steps) {
+              var points = parseLineString(step.linestring);
+              drawLine(points, "#888888"); // 도보 경로: 회색
+            }
+          } else if (leg.passShape && leg.passShape.linestring) {
+            var color = `#${leg.routeColor || "0068B7"}`;
+            var points = parseLineString(leg.passShape.linestring);
+            drawLine(points, color); // 버스 경로
+          }
+       }
+      map.panToBounds(routeBounds);
 
   } catch (error) {
     console.warn("🚨 API 실패, 더미 데이터 fallback:", error.message);
@@ -46,6 +90,66 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 });
+
+// 라인 그리기
+function drawLine(latlngs, color) {
+  var polyline = new Tmapv2.Polyline({
+    path: latlngs,
+    strokeColor: color,
+    strokeWeight: 6,
+    map: map
+  });
+  resultdrawArr.push(polyline);
+}
+
+function clearRoutes() {
+    if(resultdrawArr.length > 0) {
+        resultdrawArr.forEach(polyline => polyline.setMap(null));
+        resultdrawArr = [];
+    }
+}
+
+// 좌표 문자열 → Tmap LatLng 배열
+function parseLineString(line) {
+  return line.trim().split(" ").map(pair => {
+    const [lon, lat] = pair.split(",").map(Number);
+    return new Tmapv2.LatLng(lat, lon);
+  });
+}
+
+// 최소 거리, 최소 시간, 최소 환승 경로의 index 반환
+function getBestItineraryIndex(type, data) {
+  const itineraries = data.metaData.plan.itineraries;
+  var bestIndex = 0;
+
+  if (type === "shortestDistance") {
+    let minDistance = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.totalDistance < minDistance) {
+        minDistance = it.totalDistance;
+        bestIndex = i;
+      }
+    });
+  } else if (type === "shortestTime") {
+    let minTime = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.totalTime < minTime) {
+        minTime = it.totalTime;
+        bestIndex = i;
+      }
+    });
+  } else if (type === "leastTransfer") {
+    let minTransfer = Infinity;
+    itineraries.forEach((it, i) => {
+      if (it.transferCount < minTransfer) {
+        minTransfer = it.transferCount;
+        bestIndex = i;
+      }
+    });
+  }
+  return bestIndex;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const payBtn = document.querySelector(".btn-pay");
   payBtn?.addEventListener("click", handleDirectPayment);
@@ -120,7 +224,6 @@ function renderSteps(itinerary) {
     }
   });
 }
-
 
 // 이동수단별 아이콘 매핑
 function getIcon(mode) {
