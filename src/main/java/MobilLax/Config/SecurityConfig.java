@@ -11,6 +11,7 @@
 
 package MobilLax.Config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -76,8 +77,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable()); // CSRF 보호 비활성화 (API 서버이거나 필요 없는 경우)
 
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/home", "/css/**", "/javascript/**", "/module/**",
-                        "/images/**", "/login", "/register", "/api/**").permitAll()  // 인증 없이 접근 허용
+                .requestMatchers("/", "/home", "/route", "/css/**", "/javascript/**", "/images/**",
+                        "/module/**", "/login", "/member/login", "/register", "/api/**").permitAll()  // 인증 없이 접근 허용
                 .requestMatchers("/admin/**").hasRole("ADMIN")         // 관리자 권한 필요
                 .requestMatchers("/user/**").hasRole("USER")           // 사용자 권한 필요
                 .anyRequest().authenticated());                        // 그 외 모든 요청은 인증 필요
@@ -87,12 +88,12 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")       // 로그인 form 전송 처리 URL
                 .usernameParameter("email")         // 사용자 ID 입력 필드명
                 .passwordParameter("password")      // 비밀번호 입력 필드명
-                .defaultSuccessUrl("/")             // 로그인 성공 시 리다이렉트 경로
+                .defaultSuccessUrl("/home", true)             // 로그인 성공 시 리다이렉트 경로
                 .permitAll());
 
         http.logout(logout -> logout
                 .logoutUrl("/logout")                   // 로그아웃 요청 URL
-                .logoutSuccessUrl("/login?logout")      // 로그아웃 성공 시 이동 페이지
+                .logoutSuccessUrl("/member/login?logout")      // 로그아웃 성공 시 이동 페이지
                 .permitAll());
 
         return http.build();

@@ -2,10 +2,10 @@ var resultdrawArr = [];
 
 async function publicTest() {
     try {
-        // 로컬의 data.txt 파일을 fetch로 불러옴
+        // mock json을 받아옴
         const response = await fetch('https://3173cb8e-d014-4dcb-8da9-2e53ad672e15.mock.pstmn.io', {
                          method: "GET",
-                     });
+        });
         // 텍스트를 JSON으로 파싱
         const text = await response.text();
         const data = JSON.parse(text);

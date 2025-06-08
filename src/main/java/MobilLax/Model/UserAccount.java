@@ -67,7 +67,7 @@ public class UserAccount {
      * - 최초 생성 시 자동 설정
      * - 이후 수정 불가
      */
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     /**
