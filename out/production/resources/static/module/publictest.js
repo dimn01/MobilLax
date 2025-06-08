@@ -41,6 +41,7 @@ async function publicTest() {
                   var points = parseLineString(step.linestring);
                   console.log(points);
                   drawLine(points, "#888888"); // 도보 경로: 회색
+                  setTransportIcon(points, "WALK");
                 }
               } else {
                 var points = parseLineString(leg.passShape.linestring);
@@ -50,6 +51,7 @@ async function publicTest() {
               var color = `#${leg.routeColor || "0068B7"}`;
               var points = parseLineString(leg.passShape.linestring);
               drawLine(points, color); // 버스 경로
+              setTransportIcon(points, leg.mode);
             }
          }
         map.panToBounds(routeBounds);
@@ -61,7 +63,7 @@ async function publicTest() {
 }
 
 // 라인 그리기
-function drawLine(latlngs, color) {
+function drawLine(latlngs, color, mode) {
     var polyline = new Tmapv2.Polyline({
         path: latlngs,
         strokeColor: color,
@@ -69,6 +71,42 @@ function drawLine(latlngs, color) {
         map: map
     });
     resultdrawArr.push(polyline);
+}
+
+function setTransportIcon(points, mode) {
+  switch (mode) {
+    case "WALK":
+        let walk = new Tmapv2.Marker({
+            position: points[0],
+            icon: "https://transit.tmapmobility.com/images/ic_map_walk@2x.png",
+            iconSize: new Tmapv2.Size(24, 24),
+            map: map,
+            //title: label // 툴팁 텍스트
+          });
+      break;
+    case "BUS":
+        let bus = new Tmapv2.Marker({
+            position: points[0],
+            icon: "https://transit.tmapmobility.com/images/ic_map_bus@2x.png",
+            iconSize: new Tmapv2.Size(24, 24),
+            map: map,
+            //title: label // 툴팁 텍스트
+          });
+        break;
+    case "SUBWAY":
+        let subway = new Tmapv2.Marker({
+            position: points[0],
+            icon: "https://transit.tmapmobility.com/images/ic_map_subway@2x.png",
+            iconSize: new Tmapv2.Size(24, 24),
+            map: map,
+            //title: label // 툴팁 텍스트
+          });
+        break;
+    case "RAIL":
+      return "https://cdn-icons-png.flaticon.com/128/148/148188.png"; // 기차
+    default:
+      return "https://cdn-icons-png.flaticon.com/128/684/684908.png"; // 기본 마커
+  }
 }
 
 function clearRoutes() {
@@ -150,6 +188,7 @@ function renderSidebarRoute(index, legs) {
     else if (mode === "EXPRESSBUS") iconClass = "fas fa-bus"
     else if (mode === "SUBWAY") iconClass = "fas fa-subway";
     else if (mode === "TRAIN") iconClass = "fas fa-train";
+    else if (mode === "AIRPLANE") iconClass = "fas fa-plane";
 
     // 출발, 도착 정류장/역 이름
     const startName = leg.start.name || "";
@@ -172,6 +211,8 @@ function renderSidebarRoute(index, legs) {
     } else if (mode === "TRAIN") {
        const cost = leg.routePayment ? leg.routePayment.toLocaleString() : ""
        stepDesc = `${timeMin}, 요금 약 ${cost}원`;
+    } else if (mode === "AIRPLANE") {
+       //
     } else if (mode === "WALK") {
       stepDesc = `${timeMin}, ${distance}이동`;
     }
