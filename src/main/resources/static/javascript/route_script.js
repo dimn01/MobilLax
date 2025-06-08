@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       for (var leg of legs) {
           var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
-          var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+          var marke1r_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
           routeBounds.extend(marker_s);
           routeBounds.extend(marker_e);
 //            console.log(leg.start.lon, leg.start.lat);
@@ -80,10 +80,38 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.warn("🚨 API 실패, 더미 데이터 fallback:", error.message);
 
     try {
-      const dummyRes = await fetch("/javascript/dummy/route_dummy_data.json");
-      const dummyData = await dummyRes.json();
-      renderSummary(dummyData);
-      renderSteps(dummyData.metaData.plan.itineraries[0]);
+      const response = await fetch('https://3173cb8e-d014-4dcb-8da9-2e53ad672e15.mock.pstmn.io', {
+                       method: "GET",
+      });
+      // 텍스트를 JSON으로 파싱
+      const text = await response.text();
+      const data = JSON.parse(text);
+      console.log(data);
+      const index = getBestItineraryIndex(type || "shortestTime", data);
+
+      const legs = data.metaData.plan.itineraries[index].legs;
+      const routeBounds = new Tmapv2.LatLngBounds();
+
+      for (var leg of legs) {
+          var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
+          var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+          routeBounds.extend(marker_s);
+          routeBounds.extend(marker_e);
+//            console.log(leg.start.lon, leg.start.lat);
+//            console.log(leg.end.lon, leg.end.lat);
+          if (leg.mode === "WALK" && leg.steps) {
+            for (var step of leg.steps) {
+              var points = parseLineString(step.linestring);
+              drawLine(points, "#888888"); // 도보 경로: 회색
+            }
+          } else if (leg.passShape && leg.passShape.linestring) {
+            var color = `#${leg.routeColor || "0068B7"}`;
+            var points = parseLineString(leg.passShape.linestring);
+            drawLine(points, color); // 버스 경로
+          }
+       }
+      map.panToBounds(routeBounds);
+
     } catch (fallbackError) {
       console.error("❌ 더미 JSON도 불러오기 실패:", fallbackError);
       document.querySelector(".sidebar-content").innerHTML = "<p>경로 정보를 불러올 수 없습니다.</p>";
