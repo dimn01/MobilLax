@@ -25,12 +25,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   const headers = {
       accept: 'application/json',
       "Content-Type": "application/json",
-      "appKey": "gyeuBycm5d6tSeRpNvNyq1dm6YctkXF29812OT8D"
+      "appKey": "your-tamp-appkey"  // your-tmap-appkey
   };
 
-  console.log(JSON.parse(localStorage.getItem("selectedTo")))
   const selectedFrom = JSON.parse(localStorage.getItem("selectedFrom")) || {};
-  const selectedTo = JSON.parse(localStorage.getItem("selectedTo"));
+  const selectedTo = JSON.parse(localStorage.getItem("selectedTo")) || {};
   const params ={
       "startX" : Number(selectedFrom.x),
       "startY" : Number(selectedFrom.y),
@@ -52,8 +51,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       const data = await response.json();
       console.log(data);
       const index = getBestItineraryIndex(type || "shortestTime", data);
+      console.log(index);
 
       const legs = data.metaData.plan.itineraries[index].legs;
+      console.log(legs);
       const routeBounds = new Tmapv2.LatLngBounds();
 
       for (var leg of legs) {
@@ -86,7 +87,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       // 텍스트를 JSON으로 파싱
       const text = await response.text();
       const data = JSON.parse(text);
-      console.log(data);
       const index = getBestItineraryIndex(type || "shortestTime", data);
 
       const legs = data.metaData.plan.itineraries[index].legs;
