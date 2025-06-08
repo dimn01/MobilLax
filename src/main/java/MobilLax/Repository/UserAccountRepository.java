@@ -40,4 +40,6 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, String
      * @return boolean 해당 이메일이 DB에 이미 존재하면 true
      */
     boolean existsByEmail(String email);
+
+    void deleteByEmail(String email);
 }

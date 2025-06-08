@@ -10,6 +10,7 @@
 
 package MobilLax.Controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +32,8 @@ public class HomeController {
    * @return home 페이지 (resources/templates/home.html)
    */
   @GetMapping({"/", "/home"})
-  public String home(Model model) {
-    return "home";  // templates/home.html로 이동
+  public String home(Model model, HttpServletRequest request) {
+    model.addAttribute("remoteUser", request.getRemoteUser());
+    return "home";
   }
 }

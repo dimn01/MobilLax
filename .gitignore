@@ -68,3 +68,4 @@ Thumbs.db
 *.rar
 *.ctxt
 .mtj.tmp/
+out/

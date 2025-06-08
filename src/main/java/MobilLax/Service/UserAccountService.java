@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 이메일 유효성 검사 및 중복 체크 등 회원가입 검증 로직을 포함합니다.
  */
 @Service
-public class UserAccountService {
+public class UserAccountService  {
 
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;

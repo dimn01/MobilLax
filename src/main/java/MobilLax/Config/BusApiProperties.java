@@ -39,6 +39,11 @@ public class BusApiProperties {
     // 시외버스 관련 각 API의 URL을 포함하는 내부 구성 객체
     private Url url;
 
+    public String getKey() {
+        this.key = key;
+        return key;
+    }
+
     /**
      * ✅ 내부 클래스: bus.api.url 하위 항목을 구성
      */

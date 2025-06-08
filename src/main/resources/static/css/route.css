@@ -1,3 +1,4 @@
+@charset "utf-8";
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -69,6 +70,7 @@ body {
   overflow-y: auto;
   padding: 25px;
   box-sizing: border-box;
+  min-height: 0;
 }
 .sidebar-footer {
   display: flex;
@@ -111,7 +113,7 @@ body {
 }
 .sidebar-footer i {
   font-size: 1.1rem;
-} 
+}
 .route-step {
   background: #f9f9f9;
   border: 1px solid #ccc;
@@ -140,9 +142,71 @@ body {
   color: #555;
   font-size: 0.95em;
 }
+.route-step.selected {
+  border: 2px solid #2f80ed;
+  background-color: #eef6ff;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(47, 128, 237, 0.3);
+}
+
+.route-step.selected::after {
+  content: '✔';
+  float: right;
+  color: #2f80ed;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
 .step-arrow {
   text-align: center;
   font-size: 1.5rem;
   color: #aaa;
   margin: 5px 0;
+}
+
+.cart-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 16px;
+  padding: 30px 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  z-index: 999;
+}
+.cart-popup.hidden {
+  display: none;
+}
+.popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.popup-buttons .btn-yes,
+.popup-buttons .btn-no {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 0.95em;
+  cursor: pointer;
+}
+.popup-buttons .btn-yes {
+  background-color: #2f80ed;
+  color: white;
+}
+.popup-buttons .btn-no {
+  background-color: #eee;
+  color: #333;
+}
+.popup-buttons .btn-yes:hover {
+  background-color: #1d6fd4;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -60%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
 }
