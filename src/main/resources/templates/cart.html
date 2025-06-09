@@ -6,6 +6,9 @@
     <title>MobilLax - 장바구니</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="css/cart.css" type="text/css" rel="stylesheet">
+    <script src="/javascript/cart.js"></script>
+    <script src="/javascript/route.js"></script>
+    <script src="/javascript/payment.js"></script>
     <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
@@ -27,7 +30,10 @@
         <div class="cart-list"></div>
 
         <div class="cart-actions" style="text-align: right; margin-top: 20px;">
-            <button onclick="goToPayment()" class="find-route-button">전체 결제하기</button>
+            <!-- 장바구니 전체 결제 버튼 -->
+            <button class="btn-cart-pay find-route-button">전체 결제하기</button>
+
+            <!-- 장바구니 전체 비우기 버튼 -->
             <button id="clearCartBtn" class="find-route-button danger">전체 비우기</button>
         </div>
     </section>
@@ -37,6 +43,5 @@
     <div>© 2025 MobilLax. All rights reserved.</div>
 </footer>
 
-<script src="/javascript/cart.js"></script>
 </body>
 </html>

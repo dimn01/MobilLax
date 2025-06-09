@@ -219,7 +219,7 @@ async function showRouteResults() {
    localStorage.setItem("selectedTo", JSON.stringify(selectedTo));
 
    const data = await getTmapRoute(selectedFrom.x, selectedFrom.y, selectedTo.x, selectedTo.y);
-   let itineraries = data?.metaData?.plan?.itineraries;
+       let itineraries = data?.metaData?.plan?.itineraries;
 
    if (!itineraries || itineraries.length === 0) {
        alert("추천 경로를 찾을 수 없습니다.");
@@ -311,38 +311,42 @@ function displayRoutes(data) {
 
 //Tmap 대중교통 API 호출 함수 (POST)
 async function getTmapRoute(fromX, fromY, toX, toY) {
-  const url = 'https://apis.openapi.sk.com/transit/routes';
-
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'appKey': 'tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO'
-  };
-
-  const body = {
-    startX: fromX,
-    startY: fromY,
-    endX: toX,
-    endY: toY,
-    count: 10,
-    lang: 0,
-    format: 'json'
-  };
+//  const url = 'https://apis.openapi.sk.com/transit/routes';
+//
+//  const headers = {
+//    'Content-Type': 'application/json',
+//    'Accept': 'application/json',
+//    'appKey': 'tMyQEKvbLg6lALw2eWbA4841Al9zq0qr4V6vVMsO'
+//  };
+//
+//  const body = {
+//    startX: fromX,
+//    startY: fromY,
+//    endX: toX,
+//    endY: toY,
+//    count: 10,
+//    lang: 0,
+//    format: 'json'
+//  };
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(body)
-    });
-
-    const data = await response.json();
-    console.log("Tmap API 응답:", data);
-
-    if (!response.ok) {
-      throw new Error(`HTTP 오류 상태: ${response.status}`);
-    }
-    console.log("🔥 전체 Tmap API 응답 결과:", JSON.stringify(data, null, 2)); //api 확인용
+//    const response = await fetch(url, {
+//      method: 'POST',
+//      headers: headers,
+//      body: JSON.stringify(body)
+//    });
+//
+//    const data = await response.json();
+//    console.log("Tmap API 응답:", data);
+//
+//    if (!response.ok) {
+//      throw new Error(`HTTP 오류 상태: ${response.status}`);
+//    }
+//    console.log("🔥 전체 Tmap API 응답 결과:", JSON.stringify(data, null, 2)); //api 확인용
+//    return data;
+// ✅ 무조건 Mock JSON만 사용하도록 강제
+    const dummy = await fetch('javascript/dummy/route_dummy_data.json');
+    const data = await dummy.json();
     return data;
   } catch (err) {
     console.error("Tmap API 호출 실패, 더미 데이터 사용:", err.message || err);
