@@ -53,7 +53,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       const index = getBestItineraryIndex(type || "shortestTime", data);
       console.log(index);
 
-      const legs = data.metaData.plan.itineraries[index].legs;
+      const itinerary = data.metaData.plan.itineraries[index];
+      const legs = itinerary.legs;
+
+      // ✅ 여기 아래에 추가하세요!!
+      renderSummary(data);          // 총 소요 시간, 거리, 환승 횟수 표시
+      renderSteps(itinerary);       // 경로 단계별 표시
+
       console.log(legs);
       const routeBounds = new Tmapv2.LatLngBounds();
 
@@ -111,7 +117,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
        }
       map.panToBounds(routeBounds);
-
+    renderSummary(data);
+    renderSteps(data.metaData.plan.itineraries[index]);
     } catch (fallbackError) {
       console.error("❌ 더미 JSON도 불러오기 실패:", fallbackError);
       document.querySelector(".sidebar-content").innerHTML = "<p>경로 정보를 불러올 수 없습니다.</p>";
@@ -225,6 +232,8 @@ function renderSteps(itinerary) {
     const start = leg.start?.name || "출발지 없음";
     const end = leg.end?.name || "도착지 없음";
 
+    const stepDesc = getStepDescription(leg);  // ✅ 여기!
+
     const stepEl = document.createElement("div");
     stepEl.classList.add("route-step");
     stepEl.dataset.index = idx;
@@ -234,7 +243,8 @@ function renderSteps(itinerary) {
       <i class="fas fa-${iconClass}"></i>
       <div class="step-content">
         <h4>${idx + 1}. ${start} → ${end}</h4>
-        <p>${mode}${routeText} · ${time}분</p>
+        <p>${getModeKorean(mode)}</p>
+        <p class="step-desc">${stepDesc}</p>
       </div>
     `;
 
@@ -251,6 +261,52 @@ function renderSteps(itinerary) {
       container.appendChild(arrow);
     }
   });
+}
+
+function getModeKorean(mode) {
+  const map = {
+    BUS: "버스",
+    SUBWAY: "지하철",
+    TRAIN: "기차",
+    EXPRESSBUS: "고속버스",
+    WALK: "도보",
+    TAXI: "택시"
+  };
+  return map[mode] || "이동수단";
+}
+
+function getStepDescription(leg) {
+  const mode = leg.mode;
+  const timeMin = leg.sectionTime ? `${Math.round(leg.sectionTime / 60)}분` : null;
+  const distance = leg.distance ? `${Math.floor(leg.distance)}m` : null;
+  const fare = leg.routePayment ? `${leg.routePayment.toLocaleString()}원` : null;
+
+  // 공통 시간 정보 앞에 "약"은 조건부로 붙임
+  const timeText = timeMin ? `약 ${timeMin}` : null;
+
+  if (mode === "BUS") {
+    const count = leg.passStopList?.stationList?.length || 0;
+    const countText = count > 0 ? `${count}개 정류장 이동` : null;
+    return [timeText, countText].filter(Boolean).join(", ") || "정보 없음";
+  }
+
+  if (mode === "EXPRESSBUS" || mode === "TRAIN") {
+    const fareText = fare ? `요금 약 ${fare}` : null;
+    return [timeText, fareText].filter(Boolean).join(", ") || "정보 없음";
+  }
+
+  if (mode === "SUBWAY") {
+    const count = leg.passStopList?.stationList?.length || 0;
+    const countText = count > 0 ? `${count}개 역 이동` : null;
+    return [timeText, countText].filter(Boolean).join(", ") || "정보 없음";
+  }
+
+  if (mode === "WALK") {
+    const distText = distance ? `${distance} 이동` : null;
+    return [timeText, distText].filter(Boolean).join(", ") || "정보 없음";
+  }
+
+  return timeText || "정보 없음";
 }
 
 // 이동수단별 아이콘 매핑
@@ -363,11 +419,26 @@ async function handleDirectPayment() {
   try {
     const res = await fetch("/payment/direct-sdk-ready", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
       body: JSON.stringify({ selectedLegs })
     });
 
-    if (!res.ok) throw new Error("결제 준비 실패");
+    if (!res.ok) {
+      let errorMsg = "결제 준비 실패";
+      try {
+        const err = await res.json();
+        errorMsg = err?.error || errorMsg;
+      } catch (_) {
+        // json 파싱 실패 시 메시지 유지
+      }
+      alert(errorMsg);
+      if (res.status === 401) location.href = "/login"; // ✅ 자동 이동
+      return;
+    }
+
 
     const payments = await res.json();
 
@@ -384,9 +455,17 @@ async function handleDirectPayment() {
         payMethod: "CARD"
       });
 
+      // 사용자 취소인 경우
+      if (response.code === "USER_CANCEL") {
+        alert("결제가 취소되었습니다.");
+        break; // 전체 결제 흐름 중단
+      }
+
+      // 기타 실패
       if (response.code !== undefined) {
         alert(`${transportType} 결제가 실패했습니다: ${response.message}`);
-        continue;
+        alert("일부 결제가 실패했습니다. 마이페이지에서 확인해주세요.");
+        break; // 또는 return; 원하는 흐름에 따라 선택
       }
 
       await fetch("/payment/complete", {

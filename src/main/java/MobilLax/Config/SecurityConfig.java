@@ -11,7 +11,6 @@
 
 package MobilLax.Config;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +21,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.core.AuthenticationException;
+import java.io.IOException;
 
 /**
  * ✅ 운영 환경 전용 보안 설정 클래스
@@ -96,6 +100,9 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/member/login?logout")      // 로그아웃 성공 시 이동 페이지
                 .permitAll());
 
+        http.exceptionHandling(e -> e
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint())); // ✅ 이 라인 추가
+
         return http.build();
     }
 
@@ -111,5 +118,22 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
+    }
+
+
+    // ✅ 인증 실패 시 처리 로직
+    public static class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+        @Override
+        public void commence(HttpServletRequest request, HttpServletResponse response,
+                             AuthenticationException authException) throws IOException {
+            String accept = request.getHeader("Accept");
+            if (accept != null && accept.contains("application/json")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"error\": \"로그인을 먼저 하셔야 합니다.\"}");
+            } else {
+                response.sendRedirect("/login");
+            }
+        }
     }
 }
