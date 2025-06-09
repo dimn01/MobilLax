@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       for (var leg of legs) {
           var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
-          var marke1r_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+          var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
           routeBounds.extend(marker_s);
           routeBounds.extend(marker_e);
 //            console.log(leg.start.lon, leg.start.lat);
