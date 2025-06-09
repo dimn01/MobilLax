@@ -35,58 +35,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // 공통 결제 처리 함수
-async function processGroupPayment(groupId) {
-  try {
-    const groupRes = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
-    const payments = await groupRes.json();
+aasync function processGroupPayment(groupId) {
+   try {
+     const groupRes = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
+     const payments = await groupRes.json();
 
-    let failed = false;
+     for (const [transportType, data] of Object.entries(payments)) {
+       const { storeId, channelKey, paymentId, orderName, amount } = data;
 
-    for (const [transportType, data] of Object.entries(payments)) {
-      const { storeId, channelKey, paymentId, orderName, amount } = data;
+       const response = await PortOne.requestPayment({
+         storeId,
+         channelKey,
+         paymentId,
+         orderName,
+         totalAmount: amount,
+         currency: "CURRENCY_KRW",
+         payMethod: "CARD"
+       });
 
-      const response = await PortOne.requestPayment({
-        storeId,
-        channelKey,
-        paymentId,
-        orderName,
-        totalAmount: amount,
-        currency: "CURRENCY_KRW",
-        payMethod: "CARD"
-      });
+       if (response.code === "USER_CANCEL") {
+         alert("사용자가 결제를 취소했습니다.");
+         return false; // ❌ 전체 결제 중단
+       }
 
-      if (response.code !== undefined) {
-        // 실패 처리
-        await fetch("/payment/fail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId, groupId, amount, transportType })
-        });
+       if (response.code !== undefined) {
+         await fetch("/payment/fail", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({ paymentId, groupId, amount, transportType })
+         });
 
-        alert(`${transportType} 결제 실패: ${response.message}`);
-        failed = true;
-        continue;
-      }
+         alert(`${transportType} 결제 실패: ${response.message}`);
+         return false; // ❌ 전체 결제 중단
+       }
 
-      // 성공 처리
-      await fetch("/payment/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId, groupId, amount, transportType })
-      });
+       await fetch("/payment/complete", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({ paymentId, groupId, amount, transportType })
+       });
 
-      alert(`${transportType} 결제 완료`);
-    }
+       alert(`${transportType} 결제 완료`);
+     }
 
-    await loadCart();
+     await loadCart();
+     return true; // ✅ 정상 결제
 
-    if (failed) {
-      alert("일부 결제가 실패했습니다. 마이페이지에서 확인해주세요.");
-    }
-
-  } catch (err) {
-    alert("결제 처리 중 오류: " + err.message);
-  }
+   } catch (err) {
+     alert("결제 처리 중 오류: " + err.message);
+     return false; // ❌ 전체 결제 중단
+   }
 }
 
 // 전체 결제 버튼 처리
@@ -105,6 +103,10 @@ async function goToPayment() {
 
     for (const groupId of groupIds) {
       await processGroupPayment(groupId);
+      if (result === false) {
+          alert("결제를 중단했습니다.");
+          return;
+      }
     }
 
   } catch (err) {
