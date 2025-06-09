@@ -1,83 +1,91 @@
-var resultdrawArr = [];
+// 경로 렌더링 결과 보관용 배열
+let resultDrawArr = [];
 
+/**
+ * 목업 API를 통해 대중교통 경로를 불러와 화면에 표시합니다.
+ */
 async function publicTest() {
-    try {
-        // mock json을 받아옴
-        const response = await fetch('https://3173cb8e-d014-4dcb-8da9-2e53ad672e15.mock.pstmn.io', {
-                         method: "GET",
-        });
-        // 텍스트를 JSON으로 파싱
-        const text = await response.text();
-        const data = JSON.parse(text);
+  try {
+    const response = await fetch('https://3173cb8e-d014-4dcb-8da9-2e53ad672e15.mock.pstmn.io', {
+      method: "GET",
+    });
 
-        const type = getQueryParam("type"); // "distance" 또는 "time"
-        console.log(type)
-        const index = getBestItineraryIndex(type || "time", data);
-        console.log(index);
+    const text = await response.text();
+    const data = JSON.parse(text);
 
-        const tTime = timeCal(data.metaData.plan.itineraries[index].totalTime);
-        const tFare = data.metaData.plan.itineraries[index].fare.regular.totalFare.toLocaleString() + "원";
-        const tTrans = data.metaData.plan.itineraries[index].transferCount + "회";
+    const type = getQueryParam("type"); // URL에서 전달된 비교 기준
+    const bestIndex = getBestItineraryIndex(type || "time", data); // 최적 경로 인덱스 (bestIndex)
 
-        document.querySelector('.summary-item:nth-child(1) strong').textContent = tTime;
-        document.querySelector('.summary-item:nth-child(2) strong').textContent = tFare;
-        document.querySelector('.summary-item:nth-child(3) strong').textContent = tTrans;
+    const itinerary = data.metaData.plan.itineraries[bestIndex];
+    const legs = itinerary.legs;
 
-        const legs = data.metaData.plan.itineraries[index].legs;
-        const itinerary = data.metaData.plan.itineraries[index];
-        renderSummary(data);         // ✅ 요약 박스
-        renderSteps(itinerary);      // ✅ 세부 구간 리스트
+    const totalTime = formatTime(itinerary.totalTime); // 총 소요 시간 (초 → 분/시간)
+    const totalFare = itinerary.fare.regular.totalFare.toLocaleString() + "원"; // 총 요금
+    const transferCount = itinerary.transferCount + "회"; // 환승 횟수
 
-//        renderSidebarRoute(index, legs);
-        const routeBounds = new Tmapv2.LatLngBounds();
+    // 요약 정보 표시
+    document.querySelector('.summary-item:nth-child(1) strong').textContent = totalTime;
+    document.querySelector('.summary-item:nth-child(2) strong').textContent = totalFare;
+    document.querySelector('.summary-item:nth-child(3) strong').textContent = transferCount;
 
-        for (var leg of legs) {
-            var marker_s = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
-            var marker_e = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
-            routeBounds.extend(marker_s);
-            routeBounds.extend(marker_e);
-//            console.log(leg.start.lon, leg.start.lat);
-//            console.log(leg.end.lon, leg.end.lat);
-            // wark drawline or parseLineString or 아래 코드 수정해야 함
-            if (leg.mode === "WALK" && leg.steps) {
-              for (var step of leg.steps) {
-                var points = parseLineString(step.linestring);
-                console.log(points);
-                drawLine(points, "#888888"); // 도보 경로: 회색
-              }
-            } else if (leg.passShape && leg.passShape.linestring) {
-              var color = `#${leg.routeColor || "0068B7"}`;
-              var points = parseLineString(leg.passShape.linestring);
-              drawLine(points, color); // 버스 경로
-            }
-         }
-        map.panToBounds(routeBounds);
-        // 사용 예시
-        console.log("불러온 목업 데이터:", data);
-    } catch (err) {
-        console.error("파일을 불러오는 중 에러 발생:", err);
+    renderSummary(data);       // 요약 박스 렌더링
+    renderSteps(itinerary);    // 상세 경로 렌더링
+
+    const routeBounds = new Tmapv2.LatLngBounds();
+
+    for (const leg of legs) {
+      const startCoord = new Tmapv2.LatLng(Number(leg.start.lat), Number(leg.start.lon));
+      const endCoord = new Tmapv2.LatLng(Number(leg.end.lat), Number(leg.end.lon));
+      routeBounds.extend(startCoord);
+      routeBounds.extend(endCoord);
+
+      if (leg.mode === "WALK" && leg.steps) {
+        for (const step of leg.steps) {
+          const walkPoints = parseLineString(step.linestring);
+          drawLine(walkPoints, "#888888"); // 도보는 회색
+        }
+      } else if (leg.passShape?.linestring) {
+        const routeColor = `#${leg.routeColor || "0068B7"}`;
+        const routePoints = parseLineString(leg.passShape.linestring);
+        drawLine(routePoints, routeColor); // 대중교통 노선
+      }
     }
+
+    map.panToBounds(routeBounds);
+
+  } catch (err) {
+    console.error("목업 데이터를 불러오는 중 오류:", err);
+  }
 }
 
-// 라인 그리기
+/**
+ * 지도에 경로 선을 그립니다.
+ * @param {Tmapv2.LatLng[]} latlngs - 선을 구성할 좌표 배열
+ * @param {string} color - 선 색상 (hex 코드)
+ */
 function drawLine(latlngs, color) {
-  var polyline = new Tmapv2.Polyline({
+  const polyline = new Tmapv2.Polyline({
     path: latlngs,
     strokeColor: color,
     strokeWeight: 6,
     map: map
   });
-  resultdrawArr.push(polyline);
+  resultDrawArr.push(polyline);
 }
 
+/**
+ * 지도에서 그려진 모든 경로를 제거합니다.
+ */
 function clearRoutes() {
-    if(resultdrawArr.length > 0) {
-        resultdrawArr.forEach(polyline => polyline.setMap(null));
-        resultdrawArr = [];
-    }
+  resultDrawArr.forEach(polyline => polyline.setMap(null));
+  resultDrawArr = [];
 }
 
-// 좌표 문자열 → Tmap LatLng 배열
+/**
+ * LineString을 좌표 배열로 변환합니다.
+ * @param {string} line - "lon,lat lon,lat ..." 형식의 문자열
+ * @returns {Tmapv2.LatLng[]} - 변환된 좌표 배열
+ */
 function parseLineString(line) {
   return line.trim().split(" ").map(pair => {
     const [lon, lat] = pair.split(",").map(Number);
@@ -85,10 +93,15 @@ function parseLineString(line) {
   });
 }
 
-// 최소 거리, 최소 시간, 최소 환승 경로의 index 반환
+/**
+ * 최적 경로의 인덱스를 계산합니다.
+ * @param {"distance"|"time"|"transfer"} type - 비교 기준
+ * @param {object} data - API 응답 데이터
+ * @returns {number} - 최적 경로의 인덱스
+ */
 function getBestItineraryIndex(type, data) {
   const itineraries = data.metaData.plan.itineraries;
-  var bestIndex = 0;
+  let bestIndex = 0;
 
   if (type === "distance") {
     let minDistance = Infinity;
@@ -115,80 +128,28 @@ function getBestItineraryIndex(type, data) {
       }
     });
   }
+
   return bestIndex;
 }
 
-// URL 쿼리에서 type 추출 (예: distance, time)
+/**
+ * 쿼리 문자열에서 특정 파라미터 값을 추출합니다.
+ * @param {string} key - 파라미터 이름
+ * @returns {string|null} - 파라미터 값
+ */
 function getQueryParam(key) {
   return new URLSearchParams(window.location.search).get(key);
 }
 
-function timeCal(sec) {
-    var tTime = ""
-    if(Math.floor((sec / 60) / 60)) {
-        tTime = Math.floor((sec / 60) / 60).toFixed(0) + "시간 "
-                           + ((sec / 60) % 60).toFixed(0) + "분";
-    }
-    else { tTime = (sec / 60).toFixed(0) + "분"; }
-
-    return tTime;
+/**
+ * 초 단위를 "시간 분" 형식 문자열로 변환합니다.
+ * @param {number} sec - 초 단위 시간
+ * @returns {string} - 변환된 시간 문자열
+ */
+function formatTime(sec) {
+  if (Math.floor((sec / 60) / 60)) {
+    return `${Math.floor((sec / 60) / 60)}시간 ${Math.round((sec / 60) % 60)}분`;
+  } else {
+    return `${Math.round(sec / 60)}분`;
+  }
 }
-
-// sidebar 상세경로 표시
-//function renderSidebarRoute(index, legs) {
-//  const container = document.querySelector('.sidebar-content');
-//  container.innerHTML = ""; // 기존 내용 비움
-//
-//  legs.forEach((leg, i) => {
-//    const mode = leg.mode;
-//    const stepNumberSymbol = String.fromCharCode(0x2460 + i);
-//
-//    let iconClass = "fas fa-question"; // 기본 아이콘
-//    if (mode === "WALK") iconClass = "fas fa-walking";
-//    else if (mode === "BUS") iconClass = "fas fa-bus-simple";
-//    else if (mode === "EXPRESSBUS") iconClass = "fas fa-bus"
-//    else if (mode === "SUBWAY") iconClass = "fas fa-subway";
-//    else if (mode === "TRAIN") iconClass = "fas fa-train";
-//
-//    // 출발, 도착 정류장/역 이름
-//    const startName = leg.start.name || "";
-//    const endName = leg.end.name || "";
-//    const routeName = leg.route || "";
-//    const timeMin = timeCal(leg.sectionTime) ? `약 ${timeCal(leg.sectionTime)}` : "";
-//    const distance = leg.distance ? `${Math.floor(leg.distance)}m` : "";
-//
-//    // 정류장 수 or 역 수
-//    let stepDesc = "";
-//    if (mode === "BUS") {
-//      const stationCount = leg.passStopList.stationList.length ? leg.passStopList.stationList.length : "";
-//      stepDesc = `${timeMin}, ${stationCount}개 정류장 이동`;
-//    } else if (mode === "EXPRESSBUS" ) {
-//       const cost = leg.routePayment ? leg.routePayment.toLocaleString() : ""
-//       stepDesc = `${timeMin}, 요금 약 ${cost}원`;
-//    } else if (mode === "SUBWAY") {
-//      const stationCount = leg.passStopList.stationList.length ? leg.passStopList.stationList.length : "";
-//      stepDesc = `${timeMin}, ${stationCount}개 역 이동`;
-//    } else if (mode === "TRAIN") {
-//       const cost = leg.routePayment ? leg.routePayment.toLocaleString() : ""
-//       stepDesc = `${timeMin}, 요금 약 ${cost}원`;
-//    } else if (mode === "WALK") {
-//      stepDesc = `${timeMin}, ${distance}이동`;
-//    }
-//
-//    // HTML 조립
-//    container.innerHTML += `
-//      <div class="route-step">
-//        <i class="${iconClass}"></i>
-//        <div class="step-content">
-//          <h4>${stepNumberSymbol} ${routeName ? routeName + " " : ""}${startName}${endName ? ` → ${endName}` : ""}</h4>
-//          <p>${stepDesc}</p>
-//        </div>
-//      </div>
-//    `;
-//
-//    // 화살표 추가 (마지막 제외)
-//    if (i < legs.length - 1) {
-//      container.innerHTML += `<div class="step-arrow">↓</div>`;
-//    }
-//  });
-//}
