@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // 공통 결제 처리 함수
-aasync function processGroupPayment(groupId) {
+async function processGroupPayment(groupId) {
    try {
      const groupRes = await fetch(`/payment/sdk-ready/${groupId}`, { method: "POST" });
      const payments = await groupRes.json();
