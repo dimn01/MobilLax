@@ -5,13 +5,14 @@
  * @author
  * @lastModified 2025-06-09
  */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // 경로 선택 후 바로 결제 버튼 클릭 이벤트
-  const directPayButton = document.querySelector(".btn-pay");
-  directPayButton?.addEventListener("click", handleDirectPayment);
+  // ✅ 바로 결제 버튼 (상세 경로 페이지용)
+  document.querySelector(".btn-direct-pay")?.addEventListener("click", handleDirectPayment);
 
-  // 장바구니 목록에서 그룹 결제 버튼 클릭 이벤트
+  // ✅ 장바구니 전체 결제 버튼
+  document.querySelector(".btn-cart-pay")?.addEventListener("click", goToPayment);
+
+  // ✅ 장바구니 그룹 결제 버튼 (동적 이벤트 위임 방식)
   document.querySelector(".cart-list")?.addEventListener("click", async (event) => {
     const groupId = event.target.dataset.groupid;
     if (event.target.classList.contains("group-pay-button") && groupId) {
@@ -19,10 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!result) alert("결제를 중단했습니다.");
     }
   });
-
-  // 장바구니 전체 결제 버튼 클릭 이벤트
-  const payAllButton = document.querySelector(".btn-pay");
-  payAllButton?.addEventListener("click", goToPayment);
 });
 
 /**
@@ -39,19 +36,26 @@ async function handleDirectPayment() {
   }
 
   // 사용자가 선택한 경로 중 유효한 구간(leg)을 필터링
-  const selectedLegs = selectedElements
-    .map(el => el.legData)
+  const selectedLegs = [...document.querySelectorAll(".route-step.selected")]
+    .map(el => {
+      try {
+        return JSON.parse(el.dataset.leg);
+      } catch {
+        return null;
+      }
+    })
     .filter(leg =>
-      leg.routePayment > 0 && // 요금(routePayment)이 존재하고
-      leg.start?.name && leg.end?.name // 출발지(start.name), 도착지(end.name)가 존재하는 경우만
+      leg &&
+      leg.routePayment > 0 &&
+      leg.start?.name && leg.end?.name
     )
     .map(leg => ({
       mode: leg.mode,
       route: leg.route,
       routeId: leg.routeId,
-      routePayment: leg.routePayment, // 요금(routePayment)
-      startName: leg.start.name, // 출발지명(startName)
-      endName: leg.end.name // 도착지명(endName)
+      routePayment: leg.routePayment,
+      startName: leg.start.name,
+      endName: leg.end.name
     }));
 
   if (selectedLegs.length === 0) {

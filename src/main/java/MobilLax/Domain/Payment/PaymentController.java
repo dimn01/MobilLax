@@ -69,19 +69,30 @@ public class PaymentController {
 
         return result;
     }
-
     @PostMapping("/direct-sdk-ready")
-    public ResponseEntity<Map<String, Map<String, Object>>> prepareDirectSdkPayments(@RequestBody CartItemRequestDTO request) {
+    public ResponseEntity<?> prepareDirectSdkPayments(@RequestBody CartItemRequestDTO request) {
         String email = getCurrentUserEmail();
 
         List<CartItemRequestDTO.LegDTO> selectedLegs = request.getSelectedLegs();
 
+        // ✅ 유효성 검사: 선택된 구간이 비어있는 경우
         if (selectedLegs == null || selectedLegs.isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(Map.of("error", "선택된 구간이 없습니다."));
         }
 
-        // 선택된 구간들을 mode(교통수단)별로 그룹화
-        Map<String, List<CartItemRequestDTO.LegDTO>> groupedByTransport = selectedLegs.stream()
+        // ✅ 유효 구간 필터링: 요금 0 이하 또는 출발/도착지 누락된 경우 제외
+        List<CartItemRequestDTO.LegDTO> validLegs = selectedLegs.stream()
+                .filter(leg -> leg.getRoutePayment() > 0
+                        && leg.getStartName() != null && !leg.getStartName().isBlank()
+                        && leg.getEndName() != null && !leg.getEndName().isBlank())
+                .toList();
+
+        if (validLegs.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "요금이 있는 구간만 결제할 수 있습니다."));
+        }
+
+        // ✅ 교통수단별로 구간 그룹화
+        Map<String, List<CartItemRequestDTO.LegDTO>> groupedByTransport = validLegs.stream()
                 .collect(Collectors.groupingBy(CartItemRequestDTO.LegDTO::getMode));
 
         Map<String, Map<String, Object>> result = new HashMap<>();
@@ -92,22 +103,21 @@ public class PaymentController {
 
             int totalAmount = legs.stream().mapToInt(CartItemRequestDTO.LegDTO::getRoutePayment).sum();
 
-            String orderName = legs.size() == 1 ?
-                    legs.get(0).getStartName() + " → " + legs.get(0).getEndName() :
-                    legs.get(0).getStartName() + " → " + legs.get(legs.size() - 1).getEndName()
-                            + " 외 " + (legs.size() - 1) + "건";
+            String orderName = legs.size() == 1
+                    ? legs.get(0).getStartName() + " → " + legs.get(0).getEndName()
+                    : legs.get(0).getStartName() + " → " + legs.get(legs.size() - 1).getEndName()
+                    + " 외 " + (legs.size() - 1) + "건";
+
+            String paymentId = "payment-" + UUID.randomUUID();
+            String groupId = UUID.randomUUID().toString();
 
             Map<String, Object> paymentInfo = new HashMap<>();
-            paymentInfo.put("storeId", storeId);  // @Value("${portone_store}")
-            paymentInfo.put("channelKey", channelKey);  // @Value("${portone_channel_card}")
-            paymentInfo.put("paymentId", "payment-" + UUID.randomUUID());
+            paymentInfo.put("storeId", storeId);
+            paymentInfo.put("channelKey", channelKey);
+            paymentInfo.put("paymentId", paymentId);
             paymentInfo.put("orderName", orderName);
             paymentInfo.put("amount", totalAmount);
-
-            // 임의 그룹ID 생성 (선택 구간들을 묶는 ID)
-            String groupId = UUID.randomUUID().toString();
             paymentInfo.put("groupId", groupId);
-
             paymentInfo.put("transportType", transport);
 
             result.put(transport, paymentInfo);

@@ -211,7 +211,18 @@ function renderSteps(itinerary) {
     const stepElement = document.createElement("div");
     stepElement.classList.add("route-step");
     stepElement.dataset.index = index;
-    stepElement.legData = leg;
+    stepElement.dataset.leg = JSON.stringify(leg);  // ← 여기에 실제 leg 정보 저장
+
+    if (!leg.routePayment || leg.routePayment <= 0) {
+      stepElement.classList.add("disabled");
+      stepElement.title = "요금이 없는 구간은 선택할 수 없습니다.";
+    } else {
+      stepElement.addEventListener("click", () => {
+        stepElement.classList.toggle("selected");
+      });
+    }
+
+
     stepElement.innerHTML = `
       <div class="step-content">
         <h4>${index + 1}. ${startName} → ${endName} (index)</h4>
@@ -219,11 +230,6 @@ function renderSteps(itinerary) {
         <p class="step-desc">${stepDescription}</p>
       </div>
     `;
-
-    stepElement.addEventListener("click", () => {
-      stepElement.classList.toggle("selected");
-    });
-
     container.appendChild(stepElement);
 
     if (index < itinerary.legs.length - 1) {

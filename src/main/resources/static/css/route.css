@@ -6,6 +6,12 @@ body {
   height: 100vh;
 }
 
+.route-step.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .map-area {
   flex-grow: 1;
   height: 100vh;
@@ -102,6 +108,22 @@ body {
   background-color: #f0f0f0;
   transform: translateY(-1px);
 }
+.btn-direct-pay {
+  background-color: #2f80ed;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-direct-pay:hover {
+  background-color: #1d6fd4;
+  transform: translateY(-1px);
+}
+
 .btn-pay {
   background-color: #2f80ed;
   color: #ffffff;
